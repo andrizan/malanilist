@@ -62,6 +62,8 @@
 			padding: 20px 20px;
 			position: fixed;
 			width: 300px;
+			border: 5px solid #3498db;
+			border-top: 0;
 		}
 	</style>
 	<script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.prod.js"
@@ -131,32 +133,32 @@
 									</td>
 									<td class="text-center">{{ numberWithCommas(val.members) }}</td>
 									<td class="text-center">{{ val.status }}</td>
-									</tr>
-									</tbody>
-									</table>
+								</tr>
+								</tbody>
+								</table>
+								</div>
+								</div>
+								</div>
+								<hr>
+								<div class="row">
+									<div class="col-md-12">
+										<h1 class="display-4" id="upcomSeas">Upcoming Season</h1>
 									</div>
-									</div>
-									</div>
-									<hr>
-									<div class="row">
+									<div class="table-responsive">
 										<div class="col-md-12">
-											<h1 class="display-4" id="upcomSeas">Upcoming Season</h1>
-										</div>
-										<div class="table-responsive">
-											<div class="col-md-12">
-												<table class="table table-bordered table-striped table-hover">
-													<thead>
-														<tr>
-															<th>No.</th>
-															<th>Title</th>
-															<th>Type</th>
-															<th>Source</th>
-															<th>Release</th>
-															<th>Members</th>
-														</tr>
-													</thead>
-													<tbody>
-														<tr v-for="(valu,idxx) in upcomingData">
+											<table class="table table-bordered table-striped table-hover">
+												<thead>
+													<tr>
+														<th>No.</th>
+														<th>Title</th>
+														<th>Type</th>
+														<th>Source</th>
+														<th>Release</th>
+														<th>Members</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr v-for="(valu,idxx) in upcomingData">
 									<td class="text-center">{{ (idxx+1) }}.</td>
 									<td>
 										<a :href="valu.url" target="_blank" style="text-decoration: none" title="Open myanimelist.net">{{
@@ -215,7 +217,7 @@
 						for (var i = 2; i <= get.pagination.last_visible_page; i++) {
 							var rawResponse = await this.getData('https://api.jikan.moe/v4/seasons/now?page=' + i)
 							result = result.concat(rawResponse.data);
-							await timer(100);
+							await timer(500);
 						}
 					}
 					vm.currentData = result;
@@ -237,7 +239,7 @@
 						for (var i = 2; i <= total_page; i++) {
 							var rawResponse = await this.getData('https://api.jikan.moe/v4/seasons/upcoming?page=' + i)
 							result = result.concat(rawResponse.data);
-							await timer(100);
+							await timer(500);
 						}
 					}
 					console.log(result);
