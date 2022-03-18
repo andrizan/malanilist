@@ -32,7 +32,7 @@
 			-webkit-animation: spin 2s linear infinite;
 			/* Safari */
 			animation: spin 2s linear infinite;
-			margin: 20% auto;
+			margin-bottom: 20px;
 		}
 
 		/* Safari */
@@ -73,7 +73,12 @@
 <body>
 	<div id="app">
 		<div v-if="loading" class="bg-loader">
-			<div class="loader"></div>
+			<center style="margin-top: 15%;">
+				<div class="loader"></div>
+				<strong style="color: rgb(255, 0, 0);">
+					{{message}}
+				</strong>
+				</center>
 		</div>
 
 		<div v-else>
@@ -135,31 +140,31 @@
 									<td class="text-center">{{ val.status }}</td>
 								</tr>
 							</tbody>
-							</table>
+						</table>
+						</div>
+						</div>
+						</div>
+						<hr>
+						<div class="row">
+							<div class="col-md-12">
+								<h1 class="display-4" id="upcomSeas">Upcoming Season</h1>
 							</div>
-							</div>
-							</div>
-							<hr>
-							<div class="row">
+							<div class="table-responsive">
 								<div class="col-md-12">
-									<h1 class="display-4" id="upcomSeas">Upcoming Season</h1>
-								</div>
-								<div class="table-responsive">
-									<div class="col-md-12">
-										<table class="table table-bordered table-striped table-hover">
-											<thead>
-												<tr>
-													<th>No.</th>
-													<th>Title</th>
-													<th>Type</th>
-													<th>Source</th>
-													<th>Release</th>
+									<table class="table table-bordered table-striped table-hover">
+										<thead>
+											<tr>
+												<th>No.</th>
+												<th>Title</th>
+												<th>Type</th>
+												<th>Source</th>
+												<th>Release</th>
 									<th>Studios</th>
 									<th>Members</th>
-									</tr>
-									</thead>
-									<tbody>
-										<tr v-for="(valu,idxx) in upcomingData">
+								</tr>
+								</thead>
+								<tbody>
+									<tr v-for="(valu,idxx) in upcomingData">
 									<td class="text-center">{{ (idxx+1) }}.</td>
 									<td>
 										<a :href="valu.url" target="_blank" style="text-decoration: none" title="Open myanimelist.net">{{
@@ -195,8 +200,9 @@
 					return {
 						upcomingData: "",
 						currentData: "",
-						loading: false
-					}
+					loading: false,
+					message: "Terdapat limitasi dalam penggunaan API. Tunggu sampai loading selesai, reload browser jika data tidak muncul."
+				}
 			},
 			created: function () {
 				this.upcoming();
