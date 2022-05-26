@@ -95,6 +95,13 @@
 			background-color: #6a89cc;
 		}
 
+		.search-input {
+			width: 30%;
+			font-size: 16px;
+			padding: 8px;
+			border: 1px solid #ddd;
+			margin-bottom: 12px;
+		}
 	</style>
 	<script src="https://cdn.jsdelivr.net/npm/vue@3.2.36/dist/vue.global.prod.js"
 		integrity="sha256-pYCDN31svvIhW2F9Fwkg3QLyX6FfYfkcMykLXytiTz0=" crossorigin="anonymous"></script>
@@ -131,13 +138,15 @@
 					</li>
 				</ul>
 			</div>
-			<div class="row" style="padding-top: 130px;">
+			<div class="row" style="padding-top: 150px;">
 				<div class="col-md-12">
 					<h1 class="display-4" id="curreSeas">Current Season</h1>
 				</div>
 				<div class="table-responsive">
+					<input type="text" id="og" class="search-input" onkeyup="filterOg()" placeholder="Search for title.."
+						title="Type in a name">
 					<div class="col-md-12">
-						<table class="table table-bordered table-striped table-hover">
+						<table class="table table-bordered table-striped table-hover" id="tb-og">
 							<thead>
 								<tr>
 									<th>No.</th>
@@ -192,7 +201,9 @@
 				</div>
 				<div class="table-responsive">
 					<div class="col-md-12">
-						<table class="table table-bordered table-striped table-hover">
+						<input type="text" id="up" class="search-input" onkeyup="filterUp()" placeholder="Search for title.."
+							title="Type in a name">
+						<table class="table table-bordered table-striped table-hover" id="tb-up">
 							<thead>
 								<tr>
 									<th>No.</th>
@@ -349,6 +360,44 @@
 		function topFunction() {
 			document.body.scrollTop = 0;
 			document.documentElement.scrollTop = 0;
+		}
+	</script>
+	<script>
+		function filterOg() {
+			var input, filter, table, tr, td, i, txtValue;
+			input = document.getElementById("og");
+			filter = input.value.toUpperCase();
+			table = document.getElementById("tb-og");
+			tr = table.getElementsByTagName("tr");
+			for (i = 0; i < tr.length; i++) {
+				td = tr[i].getElementsByTagName("td")[1];
+				if (td) {
+					txtValue = td.textContent || td.innerText;
+					if (txtValue.toUpperCase().indexOf(filter) > -1) {
+						tr[i].style.display = "";
+					} else {
+						tr[i].style.display = "none";
+					}
+				}
+			}
+		}
+		function filterUp() {
+			var input, filter, table, tr, td, i, txtValue;
+			input = document.getElementById("up");
+			filter = input.value.toUpperCase();
+			table = document.getElementById("tb-up");
+			tr = table.getElementsByTagName("tr");
+			for (i = 0; i < tr.length; i++) {
+				td = tr[i].getElementsByTagName("td")[1];
+				if (td) {
+					txtValue = td.textContent || td.innerText;
+					if (txtValue.toUpperCase().indexOf(filter) > -1) {
+						tr[i].style.display = "";
+					} else {
+						tr[i].style.display = "none";
+					}
+				}
+			}
 		}
 	</script>
 </body>
