@@ -154,13 +154,14 @@
 								<tr>
 									<th>No.</th>
 									<th>Title</th>
+									<th>Genres</th>
 									<th>Type</th>
 									<th>Source</th>
-									<th>Release</th>
+									<th style="width: 100px;">Release</th>
 									<th>Episodes</th>
 									<th>Studios</th>
 									<th>Members</th>
-									<th>Status</th>
+									<th style="width: 130px;">Status</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -169,6 +170,10 @@
 									<td>
 										<a :href="val.url" target="_blank" style="text-decoration: none" title="Open in myanimelist.net">{{
 											val.title }}</a>
+									</td>
+									<td>
+										<span style="margin: 2px;" class="badge rounded-pill text-bg-primary" v-for="genre in val.genres">{{
+											genre.name}}</span>
 									</td>
 									<td class="text-center">{{ val.type }}</td>
 									<td class="text-center">{{ val.source }}</td>
@@ -184,7 +189,7 @@
 									<td class="text-center">{{ val.status }}</td>
 								</tr>
 								<tr v-if="loading_og">
-									<td colspan="9">
+									<td colspan="10">
 										<center style="padding: 10px;">
 											<div class="dot-pulse">
 												<div class="dot-pulse__dot"></div>
@@ -213,7 +218,7 @@
 									<th>Title</th>
 									<th>Type</th>
 									<th>Source</th>
-									<th>Release</th>
+									<th style="width: 100px;">Release</th>
 									<th>Studios</th>
 									<th>Members</th>
 								</tr>
@@ -269,14 +274,13 @@
 				}
 			},
 			created: function () {
-				this.upcoming();
 				this.current();
 			},
 			// Methods are functions that mutate state and trigger updates.
 			// They can be bound as event listeners in templates.
 			methods: {
 				getData: async function (url) {
-					var result = await fetch(url)
+					var result = await fetch(url);
 					return result.json()
 				},
 
@@ -294,11 +298,12 @@
 						for (var i = 2; i <= get.pagination.last_visible_page; i++) {
 							var rawResponse = await this.getData('https://api.jikan.moe/v4/seasons/now?page=' + i)
 							result = result.concat(rawResponse.data);
-							await timer(1000);
+							await timer(500);
 						}
 					}
 					vm.currentData = result;
 					this.loading_og = false
+					this.upcoming()
 				},
 
 				upcoming: async function () {
@@ -318,7 +323,7 @@
 						for (var i = 2; i <= total_page; i++) {
 							var rawResponse = await this.getData('https://api.jikan.moe/v4/seasons/upcoming?page=' + i)
 							result = result.concat(rawResponse.data);
-							await timer(1000);
+							await timer(600);
 						}
 					}
 					vm.upcomingData = result;
