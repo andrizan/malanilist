@@ -269,8 +269,8 @@
 				return {
 					upcomingData: "",
 					currentData: "",
-					loading_og: false,
-					loading_up: false,
+					loading_og: true,
+					loading_up: true,
 				}
 			},
 			created: function () {
@@ -285,7 +285,6 @@
 				},
 
 				current: async function () {
-					this.loading_og = true
 					var vm = this;
 
 					var result = [];
@@ -307,7 +306,6 @@
 				},
 
 				upcoming: async function () {
-					this.loading_up = true
 					var vm = this;
 
 					var result = [];
