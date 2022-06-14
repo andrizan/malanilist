@@ -212,10 +212,20 @@
 				<div class="col-md-12">
 					<h1 class="display-4" id="upcomSeas">Upcoming Season</h1>
 				</div>
-				<div class="table-responsive">
-					<div class="col-md-12">
-						<input type="text" id="up" class="search-input" onkeyup="filterUp()" placeholder="Search for title.."
-							title="Type in a name">
+				<div class="col-md-12">
+					<div class="row">
+						<div class="col-md-10">
+							<input type="text" id="up" class="search-input" style="width: 40% !important;" onkeyup="filterUp()"
+								placeholder="Search for title.." title="Type in a name">
+						</div>
+						<div class="col-md-2">
+							<button type="button" class="btn btn-success" style="float: right;">
+								Pipeline: {{request}}
+							</button>
+						</div>
+					</div>
+						<div class="table-responsive">
+							<div class="col-md-12">
 						<table class="table table-bordered table-striped table-hover" id="tb-up">
 							<thead>
 								<tr>
@@ -276,6 +286,7 @@
 					currentData: "",
 					loading_og: true,
 					loading_up: true,
+					request: 0,
 				}
 			},
 			created: function () {
@@ -322,11 +333,14 @@
 
 					const timer = ms => new Promise(res => setTimeout(res, ms))
 
+					let request = 1;
 					if (get.pagination.has_next_page) {
 						for (var i = 2; i <= total_page; i++) {
+							request++
 							var rawResponse = await this.getData('https://api.jikan.moe/v4/seasons/upcoming?page=' + i)
 							result = result.concat(rawResponse.data);
 							await timer(1000);
+							this.request = request;
 						}
 					}
 					vm.upcomingData = result;
