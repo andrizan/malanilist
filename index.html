@@ -220,7 +220,7 @@
 						</div>
 						<div class="col-md-2">
 							<button type="button" class="btn btn-success" style="float: right;">
-								Pipeline: {{request}}
+								Request: {{request}}/{{total_page}}
 							</button>
 						</div>
 					</div>
@@ -287,6 +287,7 @@
 					loading_og: true,
 					loading_up: true,
 					request: 0,
+					total_page: 0,
 				}
 			},
 			created: function () {
@@ -330,6 +331,7 @@
 					result = result.concat(get.data);
 
 					var total_page = get.pagination.last_visible_page
+					this.total_page = total_page;
 
 					const timer = ms => new Promise(res => setTimeout(res, ms))
 
