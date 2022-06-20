@@ -139,11 +139,6 @@
 							<h4>Upcoming Season</h4>
 						</a>
 					</li>
-					<li>
-						<a target="_blank" href="https://stats.uptimerobot.com/xB4K4HLzKl/792004054">
-							<h4>Status Server</h4>
-						</a>
-					</li>
 				</ul>
 			</div>
 			<div class="row" style="padding-top: 150px;">
@@ -151,17 +146,38 @@
 					<h1 class="display-4" id="curreSeas">Current Season</h1>
 				</div>
 				<div class="table-responsive">
-					<input type="text" id="og" class="search-input" onkeyup="filterOg()" placeholder="Search for title.."
-						title="Type in a name">
 					<div class="col-md-12">
-						<table class="table table-bordered table-striped table-hover" id="tb-og">
+						<div class="row">
+							<div class="col-md-10 col-sm-12">
+								<input type="text" id="og" class="search-input" onkeyup="filterOg()" placeholder="Search for title.."
+									title="Type in a name" style="width: 50%;">
+							</div>
+							<div class="col-md-2 col-sm-12">
+								<span style="background-color: #eb4d4b;" class="badge rounded-pill text-dark">
+									R+ - Mild Nudity
+								</span>
+								<span style="background-color: #ff7979;" class="badge rounded-pill text-dark">
+									R - 17+ (violence & profanity)
+								</span>
+								<span style="background-color: #f6e58d;" class="badge rounded-pill text-dark">
+									PG-13 - Teens 13 or older
+								</span>
+								<span style="background-color: #badc58;" class="badge rounded-pill text-dark">
+									PG - Children
+								</span>
+								<span style="background-color: #6ab04c;" class="badge rounded-pill text-dark">
+									G - All Ages
+								</span>
+							</div>
+							</div>
+							<table class="table table-bordered table-hover" id="tb-og">
 							<thead>
 								<tr>
 									<th>No.</th>
 									<th>Title</th>
 									<th>Genres</th>
 									<th>Type</th>
-									<th>Source</th>
+									<th>Source </th>
 									<th style="width: 100px;">Release</th>
 									<th>Episodes</th>
 									<th>Studios</th>
@@ -170,10 +186,11 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr v-for="(val,idx) in currentData">
+								<tr v-for="(val,idx) in currentData"
+									:style="`background-color:${val.rating == 'PG-13 - Teens 13 or older' ? '#f6e58d' : val.rating == 'R - 17+ (violence & profanity)' ? '#ff7979': val.rating == 'R+ - Mild Nudity' ? '#eb4d4b': val.rating == 'PG - Children' ? '#badc58': '#6ab04c'}`">
 									<td class="text-center">{{ (idx+1)+"." }}</td>
 									<td>
-										<a :href="val.url" target="_blank" style="text-decoration: none" title="Open in myanimelist.net">{{
+										<a :href="val.url" target="_blank" class="link-dark" title="Open in myanimelist.net">{{
 											val.title }}</a>
 									</td>
 									<td>
@@ -181,12 +198,14 @@
 											genre.name}}</span>
 									</td>
 									<td class="text-center">{{ val.type }}</td>
-									<td class="text-center">{{ val.source }}</td>
+									<td class="text-center">
+										{{ val.source }}
+									</td>
 									<td class="text-center">{{ date(val.aired.from) }}</td>
 									<td class="text-center">{{ val.episodes }}</td>
 									<td class="text-center">
 										<a v-for="(studio, i) in val.studios" :href="(studio) ? studio.url : '' " target="_blank"
-											style="text-decoration:none;" title="Open in myanimelist.net">
+											class="link-dark" title="Open in myanimelist.net">
 											{{ (studio) ? (i>0) ? " & " + studio.name : studio.name :'' }}
 										</a>
 									</td>
@@ -277,7 +296,6 @@
 			</p>
 		</div>
 	</div>
-
 	<script>
 		Vue.createApp({
 			data() {
