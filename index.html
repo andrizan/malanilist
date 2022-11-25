@@ -187,7 +187,7 @@
 							</thead>
 							<tbody>
 								<tr v-for="(val,idx) in currentData"
-									:style="`background-color:${val.rating == 'PG-13 - Teens 13 or older' ? '#f6e58d' : val.rating == 'R - 17+ (violence & profanity)' ? '#ff7979': val.rating == 'R+ - Mild Nudity' ? '#eb4d4b': val.rating == 'PG - Children' ? '#badc58': '#6ab04c'}`">
+									:style="ratingColor(val)">
 									<td class="text-center">{{ (idx+1)+"." }}</td>
 									<td>
 										<a :href="val.url" target="_blank" class="link-dark" title="Open in myanimelist.net">{{
@@ -382,6 +382,10 @@
 						return null
 					}
 					return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				},
+
+				ratingColor: function (data) {
+					return (data.rating == 'PG-13 - Teens 13 or older') ? 'background-color: #f6e58d' : (data.rating == 'R - 17+ (violence & profanity)') ? 'background-color: #ff7979' : (data.rating == 'R+ - Mild Nudity') ? 'background-color: #eb4d4b' : (data.rating == 'PG - Children') ? 'background-color: #badc58' : (data.rating == 'G - All Ages') ? 'background-color: #6ab04c' : '';
 				},
 			},
 		}).mount('#app')
