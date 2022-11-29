@@ -102,6 +102,12 @@
 			border: 1px solid #ddd;
 			margin-bottom: 12px;
 		}
+
+		#finished-airing{
+			width: 18px;
+			height: 18px;
+			margin-left: 5px;
+		}
 	</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.45/vue.global.prod.min.js"
 	integrity="sha512-3CesFAr6COyDB22AiVG2erk2moD1FeL3VMx6UezptTW3qmYdcQhfv6yDGmH4ICNTxd0Rs2AbMQ0Q5lG7J/8n3Q=="
@@ -179,6 +185,18 @@
 								</span>
 							</div>
 							</div>
+							<hr>
+							<div class="col-md-12">
+								<button @mouseenter="rmDBNow = !rmDBNow" v-if="!rmDBNow" type="button" class="btn btn-success"
+									style="margin-bottom: 10px;float: right;">
+									Request: {{requestNow}}/{{totalPageNow}}
+								</button>
+							
+								<button v-if="rmDBNow" @mouseleave="rmDBNow = false" @click="removeLocalStorage('Now')" class="btn btn-danger"
+									id="rm-now" style="margin-bottom: 10px;float: right;">
+									Remove localDB
+								</button>
+							</div>
 							<table class="table table-bordered table-hover" id="tb-og">
 							<thead>
 								<tr>
@@ -200,7 +218,8 @@
 									<td class="text-center">{{ (idx+1)+"." }}</td>
 									<td>
 										<a :href="val.url" target="_blank" class="link-dark" title="Open in myanimelist.net">{{
-											val.title }}</a>
+											val.title }} <img id="finished-airing" src="check.svg" alt="Finished Airing" title="Finished Airing"
+												v-if="val.status === 'Finished Airing'"></a>
 									</td>
 									<td>
 										<span style="margin: 2px;" class="badge rounded-pill text-bg-primary" v-for="genre in val.genres">{{
@@ -247,8 +266,14 @@
 								placeholder="Search for title.." title="Type in a name">
 						</div>
 						<div class="col-md-2">
-							<button type="button" class="btn btn-success" style="float: right;">
-								Request: {{request}}/{{total_page}}
+							<button @mouseenter="rmDBNow = !rmDBNow" v-if="!rmDBNow" type="button" class="btn btn-success"
+								style="margin-bottom: 10px;float: right;">
+								Request: {{requestUpcoming}}/{{totalPageUpcoming}}
+							</button>
+							
+							<button v-if="rmDBNow" @mouseleave="rmDBNow = false" @click="removeLocalStorage('Upcoming')" class="btn btn-danger"
+								id="rm-now" style="margin-bottom: 10px;float: right;">
+								Remove localDB
 							</button>
 						</div>
 					</div>
@@ -313,8 +338,11 @@
 					currentData: "",
 					loading_og: true,
 					loading_up: true,
-					request: 0,
-					total_page: 0,
+					requestNow: 0,
+					totalPageNow: 0,
+					requestUpcoming: 0,
+					totalPageUpcoming: 0,
+					rmDBNow: false
 				}
 			},
 			created: function () {
@@ -328,51 +356,92 @@
 					return result.json()
 				},
 
+				groupBy: function (xs, key) {
+					return xs.reduce(function (rv, x) {
+						(rv[x[key]] = rv[x[key]] || []).push(x);
+						return rv;
+					}, {});
+				},
+
+				moreThanOneDayAgo: function (date) {
+					const DAY = 1000 * 60 * 60 * 24;
+					const dayAgo = Date.now() - DAY;
+
+					return date < dayAgo;
+				},
+
 				current: async function () {
-					var vm = this;
+					const localCurrent = sessionStorage.getItem("DB-SeasonNow");
+					const expired = sessionStorage.getItem("DB-SeasonNowCreated");
 
-					var result = [];
+					if (localCurrent && !this.moreThanOneDayAgo(expired)) {
+						this.currentData = JSON.parse(localCurrent);
+						this.requestNow = 'local'
+					} else {
+						var result = [];
 
-					get = await this.getData('https://api.jikan.moe/v4/seasons/now')
-					result = result.concat(get.data);
+						get = await this.getData('https://api.jikan.moe/v4/seasons/now')
+						result = result.concat(get.data);
 
-					const timer = ms => new Promise(res => setTimeout(res, ms))
-					if (get.pagination.has_next_page) {
-						for (var i = 2; i <= get.pagination.last_visible_page; i++) {
-							var rawResponse = await this.getData('https://api.jikan.moe/v4/seasons/now?page=' + i)
-							result = result.concat(rawResponse.data);
-							await timer(500);
+						var total_page = get.pagination.last_visible_page
+						this.totalPageNow = total_page;
+
+						const timer = ms => new Promise(res => setTimeout(res, ms))
+
+						let request = 1;
+						if (get.pagination.has_next_page) {
+							for (var i = 2; i <= total_page; i++) {
+								request++
+								var rawResponse = await this.getData('https://api.jikan.moe/v4/seasons/now?page=' + i)
+								result = result.concat(rawResponse.data);
+								await timer(500);
+								this.requestNow = request;
+							}
 						}
+
+						sessionStorage.setItem('DB-SeasonNowCreated', Date.now())
+						sessionStorage.setItem('DB-SeasonNow', JSON.stringify(result))
+						this.currentData = result;
 					}
-					vm.currentData = result;
+
 					this.loading_og = false
 					this.upcoming()
 				},
 
 				upcoming: async function () {
-					var vm = this;
+					const localUpcoming = sessionStorage.getItem("DB-SeasonUpcoming");
+					const expired = sessionStorage.getItem("DB-SeasonUpcomingCreated");
 
-					var result = [];
+					if (localUpcoming && !this.moreThanOneDayAgo(expired)) {
+						this.upcomingData = JSON.parse(localUpcoming);
+						this.requestUpcoming = 'local';
+					} else {
+						var result = [];
 
-					get = await this.getData('https://api.jikan.moe/v4/seasons/upcoming')
-					result = result.concat(get.data);
+						get = await this.getData('https://api.jikan.moe/v4/seasons/upcoming')
+						result = result.concat(get.data);
 
-					var total_page = get.pagination.last_visible_page
-					this.total_page = total_page;
+						var total_page = get.pagination.last_visible_page
+						this.totalPageUpcoming = total_page;
 
-					const timer = ms => new Promise(res => setTimeout(res, ms))
+						const timer = ms => new Promise(res => setTimeout(res, ms))
 
-					let request = 1;
-					if (get.pagination.has_next_page) {
-						for (var i = 2; i <= total_page; i++) {
-							request++
-							var rawResponse = await this.getData('https://api.jikan.moe/v4/seasons/upcoming?page=' + i)
-							result = result.concat(rawResponse.data);
-							await timer(1000);
-							this.request = request;
+						let request = 1;
+						if (get.pagination.has_next_page) {
+							for (var i = 2; i <= total_page; i++) {
+								request++
+								var rawResponse = await this.getData('https://api.jikan.moe/v4/seasons/upcoming?page=' + i)
+								result = result.concat(rawResponse.data);
+								await timer(1000);
+								this.requestUpcoming = request;
+							}
 						}
+
+						sessionStorage.setItem('DB-SeasonUpcomingCreated', Date.now())
+						sessionStorage.setItem('DB-SeasonUpcoming', JSON.stringify(result))
+						this.upcomingData = result;
 					}
-					vm.upcomingData = result;
+
 					this.loading_up = false
 				},
 
@@ -395,6 +464,14 @@
 
 				ratingColor: function (data) {
 					return (data.rating == 'PG-13 - Teens 13 or older') ? 'background-color: #f6e58d' : (data.rating == 'R - 17+ (violence & profanity)') ? 'background-color: #ff7979' : (data.rating == 'R+ - Mild Nudity') ? 'background-color: #eb4d4b' : (data.rating == 'PG - Children') ? 'background-color: #badc58' : (data.rating == 'G - All Ages') ? 'background-color: #6ab04c' : '';
+				},
+
+				removeLocalStorage: function (key) {
+					sessionStorage.removeItem('DB-Season' + key)
+					sessionStorage.removeItem('DB-Season' + key + 'Created')
+					this.rmDBNow = false
+					window.location.reload();
+					return false
 				},
 			},
 		}).mount('#app')
