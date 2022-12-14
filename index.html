@@ -108,6 +108,32 @@
 			height: 18px;
 			margin-left: 5px;
 		}
+
+
+.scrolled-down{
+  transform:translateY(-100%);
+	transition: all 0.3s ease-in-out;
+}
+.scrolled-up{
+  transform:translateY(0);
+	transition: all 0.3s ease-in-out;
+}
+
+.nav-item{
+	padding: 10px 0;
+}
+.nav-item:hover {
+	background-color: #343a40;
+	border-radius: 10px;
+
+}
+
+.nav{
+	padding: 15px 0px;
+}
+.card-round{
+	border-bottom-right-radius: 10px;
+}
 	</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.45/vue.global.prod.min.js"
 	integrity="sha512-3CesFAr6COyDB22AiVG2erk2moD1FeL3VMx6UezptTW3qmYdcQhfv6yDGmH4ICNTxd0Rs2AbMQ0Q5lG7J/8n3Q=="
@@ -131,10 +157,65 @@
 			j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
 				'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
 	})(window, document, 'script', 'dataLayer', 'GTM-MBDGFRF');</script>
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+
+		el_autohide = document.querySelector('.autohide');
+
+		// add padding - top to bady(if necessary)
+		navbar_height = document.querySelector('.autohide').offsetHeight;
+		document.body.style.paddingTop = navbar_height + 'px';
+
+		if (el_autohide) {
+			var last_scroll_top = 0;
+			window.addEventListener('scroll', function () {
+				let scroll_top = window.scrollY;
+				if (scroll_top < last_scroll_top) {
+					el_autohide.classList.remove('scrolled-down');
+					el_autohide.classList.add('scrolled-up');
+				}
+				else {
+					el_autohide.classList.remove('scrolled-up');
+					el_autohide.classList.add('scrolled-down');
+				}
+				last_scroll_top = scroll_top;
+			});
+			// window.addEventListener
+		}
+		// if
+
+	});
+</script>
+
 <!-- End Google Tag Manager -->
 </head>
 
 <body>
+	<div class="autohide fixed-top">
+		<nav class="navbar navbar-dark bg-dark">
+			<div class="container-fluid">
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+					data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false"
+					aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+			</div>
+		</nav>
+		<div class="collapse col-md-5" id="navbarToggleExternalContent">
+			<div class="bg-dark p-6 container card-round">
+				<!-- Links -->
+				<ul class="nav flex-column">
+					<li class="nav-item active">
+						<a class="nav-link text-white" href="#curreSeas">Current Season</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link text-white" href="#upcomSeas">Upcoming Season</a>
+					</li>
+				</ul>
+				<!-- Links -->
+			</div>
+		</div>
+	</div>
 	<div id="app">
 	<button onclick="topFunction()" id="myBtn" title="Go to top">Top</button>
 
@@ -142,21 +223,7 @@
 			<!-- request finished -->
 		</div>
 		<div class="container">
-			<div class="row" id="menu">
-				<ul>
-					<li>
-						<a href="#curreSeas">
-							<h4>Current Season</h4>
-						</a>
-					</li>
-					<li>
-						<a href="#upcomSeas">
-							<h4>Upcoming Season</h4>
-						</a>
-					</li>
-				</ul>
-			</div>
-			<div class="row" style="padding-top: 150px;">
+			<div class="row">
 				<div class="col-md-12">
 					<h1 class="display-4" id="curreSeas">Current Season</h1>
 				</div>
@@ -187,12 +254,12 @@
 							</div>
 							<hr>
 							<div class="col-md-12">
-								<button @mouseenter="rmDBNow = !rmDBNow" v-if="!rmDBNow" type="button" class="btn btn-success"
+								<button v-if="requestNow !== 'local'" type="button" class="btn btn-success"
 									style="margin-bottom: 10px;float: right;">
 									Request: {{requestNow}}/{{totalPageNow}}
 								</button>
-							
-								<button v-if="rmDBNow" @mouseleave="rmDBNow = false" @click="removeLocalStorage('Now')" class="btn btn-danger"
+
+								<button v-else @click="removeLocalStorage('Now')" class="btn btn-danger"
 									id="rm-now" style="margin-bottom: 10px;float: right;">
 									Remove localDB
 								</button>
@@ -266,12 +333,12 @@
 								placeholder="Search for title.." title="Type in a name">
 						</div>
 						<div class="col-md-2">
-							<button @mouseenter="rmDBNow = !rmDBNow" v-if="!rmDBNow" type="button" class="btn btn-success"
+							<button v-if="requestUpcoming !== 'local'" type="button" class="btn btn-success"
 								style="margin-bottom: 10px;float: right;">
 								Request: {{requestUpcoming}}/{{totalPageUpcoming}}
 							</button>
-							
-							<button v-if="rmDBNow" @mouseleave="rmDBNow = false" @click="removeLocalStorage('Upcoming')" class="btn btn-danger"
+
+							<button v-else @click="removeLocalStorage('Upcoming')" class="btn btn-danger"
 								id="rm-now" style="margin-bottom: 10px;float: right;">
 								Remove localDB
 							</button>
@@ -326,7 +393,7 @@
 			<p>
 				&copy;{{new Date().getFullYear()}}
 				<a href="https://github.com/andrizan/" target="_blank">andrizan</a>.
-				Source Data : <a href="https://jikan.moe/" target="_blank">JIKAN V4</a>
+				API: <a href="https://jikan.moe/" target="_blank">JIKAN V4</a>
 			</p>
 		</div>
 	</div>
@@ -342,7 +409,6 @@
 					totalPageNow: 0,
 					requestUpcoming: 0,
 					totalPageUpcoming: 0,
-					rmDBNow: false
 				}
 			},
 			created: function () {
@@ -469,7 +535,6 @@
 				removeLocalStorage: function (key) {
 					sessionStorage.removeItem('DB-Season' + key)
 					sessionStorage.removeItem('DB-Season' + key + 'Created')
-					this.rmDBNow = false
 					window.location.reload();
 					return false
 				},
@@ -496,6 +561,7 @@
 			document.body.scrollTop = 0;
 			document.documentElement.scrollTop = 0;
 		}
+
 	</script>
 	<script>
 		function filterOg() {
@@ -535,6 +601,9 @@
 			}
 		}
 	</script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.min.js"
+		integrity="sha512-1/RvZTcCDEUjY/CypiMz+iqqtaoQfAITmNSJY17Myp4Ms5mdxPS5UV7iOfdZoxcGhzFbOm6sntTKJppjvuhg4g=="
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<!-- Google Tag Manager (noscript) -->
 	<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MBDGFRF" height="0" width="0"
 			style="display:none;visibility:hidden"></iframe></noscript>
