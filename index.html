@@ -5,124 +5,36 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="apple-mobile-web-app-title" content="Anime List">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+	<meta name="theme-color" content="#ffffff">
+	
+	<link rel="apple-touch-icon" sizes="57x57" href="./images/icons/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="./images/icons/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="./images/icons/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="./images/icons/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="./images/icons/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="./images/icons/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="./images/icons/apple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="./images/icons/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="./images/icons/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="./images/icons/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="./images/icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="./images/icons/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="./images/icons/favicon-16x16.png">
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css"
 		integrity="sha512-SbiR/eusphKoMVVXysTKG/7VseWii+Y3FdHrt0EpKgpToZeemhqHeZeLWLhJutz/2ut2Vw1uQEj2MbRF+TVBUA=="
 		crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="manifest" href="/manifest.json">
+
 	<title>Anime List</title>
-	<style>
-		html {
-			scroll-behavior: smooth;
-		}
 
-		.dot-pulse {
-			--uib-size: 50px;
-			--uib-speed: 1.3s;
-			--uib-color: #6a89cc;
-
-			position: relative;
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			width: var(--uib-size);
-			height: calc(var(--uib-size) * 0.27);
-		}
-
-		.dot-pulse__dot,
-		.dot-pulse::before,
-		.dot-pulse::after {
-			content: '';
-			display: block;
-			height: calc(var(--uib-size) * 0.18);
-			width: calc(var(--uib-size) * 0.18);
-			border-radius: 50%;
-			background-color: var(--uib-color);
-			transform: scale(0);
-		}
-
-		.dot-pulse::before {
-			animation: pulse var(--uib-speed) ease-in-out infinite;
-		}
-
-		.dot-pulse__dot {
-			animation: pulse var(--uib-speed) ease-in-out
-				calc(var(--uib-speed) * 0.125) infinite both;
-		}
-
-		.dot-pulse::after {
-			animation: pulse var(--uib-speed) ease-in-out
-				calc(var(--uib-speed) * 0.25) infinite;
-		}
-
-		@keyframes pulse {
-			0%,
-			100% {
-				transform: scale(0);
-			}
-
-			50% {
-				transform: scale(1.5);
-			}
-		}
-
-		#myBtn {
-			display: none;
-			position: fixed;
-			bottom: 20px;
-			right: 30px;
-			z-index: 99;
-			font-size: 18px;
-			border: none;
-			outline: none;
-			background-color:#4a69bd;
-			color: white;
-			cursor: pointer;
-			padding: 15px;
-			border-radius: 4px;
-		}
-
-		#myBtn:hover {
-			background-color: #6a89cc;
-		}
-
-		#finished-airing{
-			width: 18px;
-			height: 18px;
-			margin-left: 5px;
-		}
-
-		.scrolled-down{
-			transform:translateY(-100%);
-			transition: all 0.3s ease-in-out;
-		}
-
-		.scrolled-up{
-			transform:translateY(0);
-			transition: all 0.3s ease-in-out;
-		}
-
-		.nav-item{
-			padding: 10px 0;
-		}
-		.nav-item:hover {
-			background-color: #343a40;
-			border-radius: 10px;
-
-		}
-
-		.nav{
-			padding: 15px 0px;
-		}
-
-		.card-round{
-			border-bottom-right-radius: 10px;
-		}
-
-		.badge{
-			margin: 2px;
-		}
-	</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.45/vue.global.prod.min.js"
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.45/vue.global.prod.min.js"
 	integrity="sha512-3CesFAr6COyDB22AiVG2erk2moD1FeL3VMx6UezptTW3qmYdcQhfv6yDGmH4ICNTxd0Rs2AbMQ0Q5lG7J/8n3Q=="
 	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
@@ -135,6 +47,7 @@
 
 		gtag('config', 'G-RD5DS82VTE');
 	</script>
+
 <!-- Google Tag Manager -->
 <script>(function (w, d, s, l, i) {
 		w[l] = w[l] || []; w[l].push({
@@ -143,37 +56,8 @@
 		}); var f = d.getElementsByTagName(s)[0],
 			j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
 				'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-	})(window, document, 'script', 'dataLayer', 'GTM-MBDGFRF');</script>
-<script>
-	document.addEventListener("DOMContentLoaded", function () {
-
-		el_autohide = document.querySelector('.autohide');
-
-		// add padding - top to bady(if necessary)
-		navbar_height = document.querySelector('.autohide').offsetHeight;
-		document.body.style.paddingTop = navbar_height + 'px';
-
-		if (el_autohide) {
-			var last_scroll_top = 0;
-			window.addEventListener('scroll', function () {
-				let scroll_top = window.scrollY;
-				if (scroll_top < last_scroll_top) {
-					el_autohide.classList.remove('scrolled-down');
-					el_autohide.classList.add('scrolled-up');
-				}
-				else {
-					el_autohide.classList.remove('scrolled-up');
-					el_autohide.classList.add('scrolled-down');
-				}
-				last_scroll_top = scroll_top;
-			});
-			// window.addEventListener
-		}
-		// if
-
-	});
+				})(window, document, 'script', 'dataLayer', 'GTM-MBDGFRF');
 </script>
-
 <!-- End Google Tag Manager -->
 </head>
 
@@ -267,7 +151,7 @@
 									<td class="text-center">{{ (idx+1)+"." }}</td>
 									<td>
 										<a :href="val.url" target="_blank" class="link-dark" title="Open in myanimelist.net">{{
-											val.title }} <img id="finished-airing" src="check.svg" alt="Finished Airing" title="Finished Airing"
+											val.title }} <img id="finished-airing" src="./images/check.svg" alt="Finished Airing" title="Finished Airing"
 												v-if="val.status === 'Finished Airing'"></a>
 									</td>
 									<td>
@@ -379,210 +263,6 @@
 			</p>
 		</div>
 	</div>
-	<script>
-		Vue.createApp({
-			data() {
-				return {
-					upcomingData: "",
-					currentData: "",
-					loading_og: true,
-					loading_up: true,
-					requestNow: 0,
-					totalPageNow: 0,
-					requestUpcoming: 0,
-					totalPageUpcoming: 0,
-				}
-			},
-			created: function () {
-				this.current();
-			},
-			// Methods are functions that mutate state and trigger updates.
-			// They can be bound as event listeners in templates.
-			methods: {
-				getData: async function (url) {
-					var result = await fetch(url);
-					return result.json()
-				},
-
-				groupBy: function (xs, key) {
-					return xs.reduce(function (rv, x) {
-						(rv[x[key]] = rv[x[key]] || []).push(x);
-						return rv;
-					}, {});
-				},
-
-				moreThanOneDayAgo: function (date) {
-					const DAY = 1000 * 60 * 60 * 24;
-					const dayAgo = Date.now() - DAY;
-
-					return date < dayAgo;
-				},
-
-				current: async function () {
-					const localCurrent = sessionStorage.getItem("DB-SeasonNow");
-					const expired = sessionStorage.getItem("DB-SeasonNowCreated");
-
-					if (localCurrent && !this.moreThanOneDayAgo(expired)) {
-						this.currentData = JSON.parse(localCurrent);
-						this.requestNow = 'local'
-					} else {
-						var result = [];
-
-						get = await this.getData('https://api.jikan.moe/v4/seasons/now')
-						result = result.concat(get.data);
-
-						var total_page = get.pagination.last_visible_page
-						this.totalPageNow = total_page;
-
-						const timer = ms => new Promise(res => setTimeout(res, ms))
-
-						let request = 1;
-						if (get.pagination.has_next_page) {
-							for (var i = 2; i <= total_page; i++) {
-								request++
-								var rawResponse = await this.getData('https://api.jikan.moe/v4/seasons/now?page=' + i)
-								result = result.concat(rawResponse.data);
-								await timer(500);
-								this.requestNow = request;
-							}
-						}
-
-						sessionStorage.setItem('DB-SeasonNowCreated', Date.now())
-						sessionStorage.setItem('DB-SeasonNow', JSON.stringify(result))
-						this.currentData = result;
-					}
-
-					this.loading_og = false
-					this.upcoming()
-				},
-
-				upcoming: async function () {
-					const localUpcoming = sessionStorage.getItem("DB-SeasonUpcoming");
-					const expired = sessionStorage.getItem("DB-SeasonUpcomingCreated");
-
-					if (localUpcoming && !this.moreThanOneDayAgo(expired)) {
-						this.upcomingData = JSON.parse(localUpcoming);
-						this.requestUpcoming = 'local';
-					} else {
-						var result = [];
-
-						get = await this.getData('https://api.jikan.moe/v4/seasons/upcoming')
-						result = result.concat(get.data);
-
-						var total_page = get.pagination.last_visible_page
-						this.totalPageUpcoming = total_page;
-
-						const timer = ms => new Promise(res => setTimeout(res, ms))
-
-						let request = 1;
-						if (get.pagination.has_next_page) {
-							for (var i = 2; i <= total_page; i++) {
-								request++
-								var rawResponse = await this.getData('https://api.jikan.moe/v4/seasons/upcoming?page=' + i)
-								result = result.concat(rawResponse.data);
-								await timer(1000);
-								this.requestUpcoming = request;
-							}
-						}
-
-						sessionStorage.setItem('DB-SeasonUpcomingCreated', Date.now())
-						sessionStorage.setItem('DB-SeasonUpcoming', JSON.stringify(result))
-						this.upcomingData = result;
-					}
-
-					this.loading_up = false
-				},
-
-				date: function (x) {
-					if (x == null) {
-						return null
-					}
-
-					var yourDate = new Date(x);
-					const offset = yourDate.getTimezoneOffset()
-					yourDate = new Date(yourDate.getTime() - (offset * 60 * 1000))
-					return yourDate.toISOString().split('T')[0]
-				},
-				numberWithCommas: function (x) {
-					if (x == null) {
-						return null
-					}
-					return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-				},
-
-				ratingColor: function (data) {
-					return (data.rating == 'PG-13 - Teens 13 or older') ? 'background-color: #f6e58d' : (data.rating == 'R - 17+ (violence & profanity)') ? 'background-color: #ff7979' : (data.rating == 'R+ - Mild Nudity') ? 'background-color: #eb4d4b' : (data.rating == 'PG - Children') ? 'background-color: #badc58' : (data.rating == 'G - All Ages') ? 'background-color: #6ab04c' : '';
-				},
-
-				removeLocalStorage: function (key) {
-					sessionStorage.removeItem('DB-Season' + key)
-					sessionStorage.removeItem('DB-Season' + key + 'Created')
-					window.location.reload();
-					return false
-				},
-			},
-		}).mount('#app')
-	</script>
-	<script>
-		//Get the button
-		var mybutton = document.getElementById("myBtn");
-
-		// When the user scrolls down 20px from the top of the document, show the button
-		window.onscroll = function () { scrollFunction() };
-
-		function scrollFunction() {
-			if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-				mybutton.style.display = "block";
-			} else {
-				mybutton.style.display = "none";
-			}
-		}
-
-		// When the user clicks on the button, scroll to the top of the document
-		function topFunction() {
-			document.body.scrollTop = 0;
-			document.documentElement.scrollTop = 0;
-		}
-
-	</script>
-	<script>
-		function filterOg() {
-			var input, filter, table, tr, td, i, txtValue;
-			input = document.getElementById("og");
-			filter = input.value.toUpperCase();
-			table = document.getElementById("tb-og");
-			tr = table.getElementsByTagName("tr");
-			for (i = 0; i < tr.length; i++) {
-				td = tr[i].getElementsByTagName("td")[1];
-				if (td) {
-					txtValue = td.textContent || td.innerText;
-					if (txtValue.toUpperCase().indexOf(filter) > -1) {
-						tr[i].style.display = "";
-					} else {
-						tr[i].style.display = "none";
-					}
-				}
-			}
-		}
-		function filterUp() {
-			var input, filter, table, tr, td, i, txtValue;
-			input = document.getElementById("up");
-			filter = input.value.toUpperCase();
-			table = document.getElementById("tb-up");
-			tr = table.getElementsByTagName("tr");
-			for (i = 0; i < tr.length; i++) {
-				td = tr[i].getElementsByTagName("td")[1];
-				if (td) {
-					txtValue = td.textContent || td.innerText;
-					if (txtValue.toUpperCase().indexOf(filter) > -1) {
-						tr[i].style.display = "";
-					} else {
-						tr[i].style.display = "none";
-					}
-				}
-			}
-		}
-	</script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.min.js"
 		integrity="sha512-1/RvZTcCDEUjY/CypiMz+iqqtaoQfAITmNSJY17Myp4Ms5mdxPS5UV7iOfdZoxcGhzFbOm6sntTKJppjvuhg4g=="
 		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -590,6 +270,7 @@
 	<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MBDGFRF" height="0" width="0"
 			style="display:none;visibility:hidden"></iframe></noscript>
 	<!-- End Google Tag Manager (noscript) -->
+<script src="./js/main.js"></script>
 </body>
 
 </html>
