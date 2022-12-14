@@ -65,16 +65,6 @@
 			}
 		}
 
-		#menu {
-			z-index: 9;
-			background-color: #f3f3f3;
-			padding: 20px 20px;
-			position: fixed;
-			width: 300px;
-			border: 5px solid #3498db;
-			border-top: 0;
-		}
-
 		#myBtn {
 			display: none;
 			position: fixed;
@@ -95,45 +85,42 @@
 			background-color: #6a89cc;
 		}
 
-		.search-input {
-			width: 30%;
-			font-size: 16px;
-			padding: 8px;
-			border: 1px solid #ddd;
-			margin-bottom: 12px;
-		}
-
 		#finished-airing{
 			width: 18px;
 			height: 18px;
 			margin-left: 5px;
 		}
 
+		.scrolled-down{
+			transform:translateY(-100%);
+			transition: all 0.3s ease-in-out;
+		}
 
-.scrolled-down{
-  transform:translateY(-100%);
-	transition: all 0.3s ease-in-out;
-}
-.scrolled-up{
-  transform:translateY(0);
-	transition: all 0.3s ease-in-out;
-}
+		.scrolled-up{
+			transform:translateY(0);
+			transition: all 0.3s ease-in-out;
+		}
 
-.nav-item{
-	padding: 10px 0;
-}
-.nav-item:hover {
-	background-color: #343a40;
-	border-radius: 10px;
+		.nav-item{
+			padding: 10px 0;
+		}
+		.nav-item:hover {
+			background-color: #343a40;
+			border-radius: 10px;
 
-}
+		}
 
-.nav{
-	padding: 15px 0px;
-}
-.card-round{
-	border-bottom-right-radius: 10px;
-}
+		.nav{
+			padding: 15px 0px;
+		}
+
+		.card-round{
+			border-bottom-right-radius: 10px;
+		}
+
+		.badge{
+			margin: 2px;
+		}
 	</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.45/vue.global.prod.min.js"
 	integrity="sha512-3CesFAr6COyDB22AiVG2erk2moD1FeL3VMx6UezptTW3qmYdcQhfv6yDGmH4ICNTxd0Rs2AbMQ0Q5lG7J/8n3Q=="
@@ -199,6 +186,23 @@
 					aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
+				<div class="float-end" style="margin-top: 10px;">
+					<span style="background-color: #eb4d4b;" class="badge rounded-pill text-dark">
+						R+ - Mild Nudity
+					</span>
+					<span style="background-color: #ff7979;" class="badge rounded-pill text-dark">
+						R - 17+ (violence & profanity)
+					</span>
+					<span style="background-color: #f6e58d;" class="badge rounded-pill text-dark">
+						PG-13 - Teens 13 or older
+					</span>
+					<span style="background-color: #badc58;" class="badge rounded-pill text-dark">
+						PG - Children
+					</span>
+					<span style="background-color: #6ab04c;" class="badge rounded-pill text-dark">
+						G - All Ages
+					</span>
+				</div>
 			</div>
 		</nav>
 		<div class="collapse col-md-5" id="navbarToggleExternalContent">
@@ -218,52 +222,30 @@
 	</div>
 	<div id="app">
 	<button onclick="topFunction()" id="myBtn" title="Go to top">Top</button>
-
-		<div v-else>
-			<!-- request finished -->
-		</div>
 		<div class="container">
 			<div class="row">
 				<div class="col-md-12">
-					<h1 class="display-4" id="curreSeas">Current Season</h1>
+					<h1 class="fs-1 fw-bold" id="curreSeas">Current Season</h1>
 				</div>
 				<div class="table-responsive">
 					<div class="col-md-12">
-						<div class="row">
-							<div class="col-md-10 col-sm-12">
-								<input type="text" id="og" class="search-input" onkeyup="filterOg()" placeholder="Search for title.."
-									title="Type in a name" style="width: 50%;">
-							</div>
-							<div class="col-md-2 col-sm-12">
-								<span style="background-color: #eb4d4b;" class="badge rounded-pill text-dark">
-									R+ - Mild Nudity
-								</span>
-								<span style="background-color: #ff7979;" class="badge rounded-pill text-dark">
-									R - 17+ (violence & profanity)
-								</span>
-								<span style="background-color: #f6e58d;" class="badge rounded-pill text-dark">
-									PG-13 - Teens 13 or older
-								</span>
-								<span style="background-color: #badc58;" class="badge rounded-pill text-dark">
-									PG - Children
-								</span>
-								<span style="background-color: #6ab04c;" class="badge rounded-pill text-dark">
-									G - All Ages
-								</span>
-							</div>
-							</div>
-							<hr>
-							<div class="col-md-12">
-								<button v-if="requestNow !== 'local'" type="button" class="btn btn-success"
-									style="margin-bottom: 10px;float: right;">
-									Request: {{requestNow}}/{{totalPageNow}}
-								</button>
+						<div class="mt-3 mb-3">
+							<div class="row">
+								<div class="col">
+									<input type="text" id="og" class="form-control" onkeyup="filterOg()" placeholder="Search for title.."
+										title="Type in a name">
+								</div>
+								<div class="col">
+									<button v-if="requestNow !== 'local'" type="button" class="btn btn-success float-end">
+										Request: {{requestNow}}/{{totalPageNow}}
+									</button>
 
-								<button v-else @click="removeLocalStorage('Now')" class="btn btn-danger"
-									id="rm-now" style="margin-bottom: 10px;float: right;">
-									Remove localDB
-								</button>
-							</div>
+									<button v-else @click="removeLocalStorage('Now')" class="btn btn-danger float-end" id="rm-now">
+										Remove localDB
+									</button>
+									</div>
+								</div>
+								</div>
 							<table class="table table-bordered table-hover" id="tb-og">
 							<thead>
 								<tr>
@@ -289,7 +271,7 @@
 												v-if="val.status === 'Finished Airing'"></a>
 									</td>
 									<td>
-										<span style="margin: 2px;" class="badge rounded-pill text-bg-primary" v-for="genre in val.genres">{{
+										<span class="badge rounded-pill text-bg-primary" v-for="genre in val.genres">{{
 											genre.name}}</span>
 									</td>
 									<td class="text-center">{{ val.type }}</td>
@@ -324,24 +306,24 @@
 			<hr>
 			<div class="row">
 				<div class="col-md-12">
-					<h1 class="display-4" id="upcomSeas">Upcoming Season</h1>
+					<h1 class="fs-1 fw-bold" id="upcomSeas">Upcoming Season</h1>
 				</div>
 				<div class="col-md-12">
-					<div class="row">
-						<div class="col-md-10">
-							<input type="text" id="up" class="search-input" style="width: 40% !important;" onkeyup="filterUp()"
-								placeholder="Search for title.." title="Type in a name">
-						</div>
-						<div class="col-md-2">
-							<button v-if="requestUpcoming !== 'local'" type="button" class="btn btn-success"
-								style="margin-bottom: 10px;float: right;">
-								Request: {{requestUpcoming}}/{{totalPageUpcoming}}
-							</button>
+					<div class="mt-3 mb-3">
+						<div class="row">
+							<div class="col">
+								<input type="text" id="up" class="form-control" onkeyup="filterUp()" placeholder="Search for title.."
+									title="Type in a name">
+							</div>
+							<div class="col">
+								<button v-if="requestUpcoming !== 'local'" type="button" class="btn btn-success float-end">
+									Request: {{requestUpcoming}}/{{totalPageUpcoming}}
+								</button>
 
-							<button v-else @click="removeLocalStorage('Upcoming')" class="btn btn-danger"
-								id="rm-now" style="margin-bottom: 10px;float: right;">
-								Remove localDB
-							</button>
+								<button v-else @click="removeLocalStorage('Upcoming')" class="btn btn-danger float-end" id="rm-now">
+									Remove localDB
+								</button>
+							</div>
 						</div>
 					</div>
 						<div class="table-responsive">
