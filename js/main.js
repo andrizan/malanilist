@@ -51,8 +51,8 @@ Vue.createApp({
     },
 
     current: async function () {
-      const localCurrent = sessionStorage.getItem("DB-SeasonNow");
-      const expired = sessionStorage.getItem("DB-SeasonNowCreated");
+      const localCurrent = localStorage.getItem("DB-SeasonNow");
+      const expired = localStorage.getItem("DB-SeasonNowCreated");
 
       if (localCurrent && !this.moreThanOneDayAgo(expired)) {
         this.currentData = JSON.parse(localCurrent);
@@ -79,8 +79,8 @@ Vue.createApp({
           }
         }
 
-        sessionStorage.setItem('DB-SeasonNowCreated', Date.now())
-        sessionStorage.setItem('DB-SeasonNow', JSON.stringify(result))
+        localStorage.setItem('DB-SeasonNowCreated', Date.now())
+        localStorage.setItem('DB-SeasonNow', JSON.stringify(result))
         this.currentData = result;
       }
 
@@ -89,8 +89,8 @@ Vue.createApp({
     },
 
     upcoming: async function () {
-      const localUpcoming = sessionStorage.getItem("DB-SeasonUpcoming");
-      const expired = sessionStorage.getItem("DB-SeasonUpcomingCreated");
+      const localUpcoming = localStorage.getItem("DB-SeasonUpcoming");
+      const expired = localStorage.getItem("DB-SeasonUpcomingCreated");
 
       if (localUpcoming && !this.moreThanOneDayAgo(expired)) {
         this.upcomingData = JSON.parse(localUpcoming);
@@ -117,8 +117,8 @@ Vue.createApp({
           }
         }
 
-        sessionStorage.setItem('DB-SeasonUpcomingCreated', Date.now())
-        sessionStorage.setItem('DB-SeasonUpcoming', JSON.stringify(result))
+        localStorage.setItem('DB-SeasonUpcomingCreated', Date.now())
+        localStorage.setItem('DB-SeasonUpcoming', JSON.stringify(result))
         this.upcomingData = result;
       }
 
@@ -147,8 +147,8 @@ Vue.createApp({
     },
 
     removeLocalStorage: function (key) {
-      sessionStorage.removeItem('DB-Season' + key)
-      sessionStorage.removeItem('DB-Season' + key + 'Created')
+      localStorage.removeItem('DB-Season' + key)
+      localStorage.removeItem('DB-Season' + key + 'Created')
       window.location.reload();
       return false
     },
