@@ -27,7 +27,12 @@ Vue.createApp({
   // They can be bound as event listeners in templates.
   methods: {
     getData: async function (url) {
-      var result = await fetch(url);
+      const timer = ms => new Promise(res => setTimeout(res, ms))
+      while (true) {
+        var result = await fetch(url);
+        if (result.ok) break
+        await timer(2000);
+      }
       return result.json()
     },
 
