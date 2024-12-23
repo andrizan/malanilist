@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply font-lexend;
+}
+
+.list-rating {
+  list-style-type: none; /* Removes the default bullets */
+  padding-left: 0; /* Remove default padding */
+}
+
+.list-rating li {
+  position: relative;
+  padding-left: 20px; /* Adjust the space between text and bullet */
+}
+
+.list-rating li::after {
+  content: "•"; /* Custom bullet */
+  position: absolute;
+  left: 100%; /* Place after the text */
+  margin-left: 10px; /* Space between text and bullet */
+  color: #4b5563; /* Set bullet color */
+}
