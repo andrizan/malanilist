@@ -9,7 +9,7 @@ const fetchUpcomingAnime = async (
   pageSize: number,
 ): Promise<{ data: AnimeList[]; pagination: PaginationInfo }> => {
   const baseURL = query
-    ? `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&page=${page}&limit=${pageSize}&start_date=${new Date().getFullYear()}-01-01&status=upcoming`
+    ? `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&page=${page}&limit=${pageSize}&status=upcoming`
     : `https://api.jikan.moe/v4/seasons/upcoming?page=${page}&limit=${pageSize}`
 
   const response = await fetch(baseURL)
