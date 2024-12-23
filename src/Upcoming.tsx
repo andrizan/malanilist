@@ -90,11 +90,6 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
     `
   }
 
-  const getStatusClass = (status: string): string => {
-    return `px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-      ${status === 'Currently Upcoming' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`
-  }
-
   const Pagination: Component = () => {
     const pagination = () => upcomingData()?.pagination
     const totalPages = () => Math.ceil((pagination()?.items.total || 0) / pageSize())
@@ -251,9 +246,6 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
                     <th class="px-6 py-3 text-left text-gray-500 uppercase whitespace-nowrap text-sm font-medium truncate">
                       Members
                     </th>
-                    <th class="px-6 py-3 text-left text-gray-500 uppercase whitespace-nowrap text-sm font-medium truncate">
-                      Status
-                    </th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -274,7 +266,7 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
                               <a
                                 href={anime.url}
                                 target="_blank"
-                                class="flex flex-row cursor-pointer min-w-[14rem] max-w-[24rem] whitespace-normal hover:underline"
+                                class="flex flex-row cursor-pointer min-w-[18rem] max-w-[28rem] whitespace-normal hover:underline"
                               >
                                 {anime.title}
                                 <div class="mx-1 text-gray-500">
@@ -312,14 +304,11 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
                         <td class="px-6 py-4 whitespace-nowrap text-sm truncate text-center">
                           {anime.episodes || 'TBA'}
                         </td>
-                        <td class="px-6 py-4 text-sm min-w-[12rem] max-w-[18rem] whitespace-normal">
+                        <td class="px-6 py-4 text-sm min-w-[15rem] max-w-[20rem] whitespace-normal">
                           {anime.studios?.map((studio) => studio.name).join(', ') || 'TBA'}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm truncate text-center">
                           {anime.members?.toLocaleString()}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm truncate">
-                          <span class={getStatusClass(anime.status)}>{anime.status || 'TBA'}</span>
                         </td>
                       </tr>
                     )}
