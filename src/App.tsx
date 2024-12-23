@@ -1,303 +1,300 @@
-import { createResource, createSignal, Match, onMount, Suspense, Switch } from 'solid-js'
+import { Component, createSignal, createResource, createEffect, For, Show } from 'solid-js';
+import { AnimeData } from './interface/animelist';
+import { PaginationInfo } from './interface/paginate';
 
-const fetchAiring = async () => {
-  const response = await fetch('https://api.jikan.moe/v4/seasons/now?limit=20')
-  return response.json()
-}
+const PAGE_SIZE = 15;
 
-function App() {
-  const [isDarkMode, setDarkMode] = createSignal(localStorage.getItem('theme') || 'light')
-  const [airingData] = createResource('airing', fetchAiring)
+const fetchAiringAnime = async (page: number): Promise<{ data: AnimeData[], pagination: PaginationInfo }> => {
+  const response = await fetch(`https://api.jikan.moe/v4/seasons/now?page=${page}&limit=${PAGE_SIZE}`);
+  const data = await response.json();
+  return data;
+};
 
-  // Add default theme to local storage if not set
-  onMount(() => {
-    if (!localStorage.getItem('theme')) {
-      localStorage.setItem('theme', 'light')
-    }
-    applyTheme(isDarkMode())
-  })
+const formatDate = (dateString: string): string => {
+  return new Date(dateString).toLocaleDateString('id-ID', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
 
-  // Function to apply theme based on current mode
-  const applyTheme = (theme: string) => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }
+const AnimeTable: Component = () => {
+  const [currentPage, setCurrentPage] = createSignal<number>(1);
+  const [isDarkMode, setIsDarkMode] = createSignal<boolean>(
+    localStorage.getItem('theme') === 'dark'
+  );
+  const [searchQuery, setSearchQuery] = createSignal<string>('');
+  const [animeData] = createResource(currentPage, fetchAiringAnime);
 
-  // Function to toggle dark mode
-  const toggleDarkMode = () => {
-    const newTheme = isDarkMode() === 'light' ? 'dark' : 'light' // Invoke signal
-    setDarkMode(newTheme) // Update signal state
-    localStorage.setItem('theme', newTheme) // Persist theme
-    applyTheme(newTheme) // Apply the new theme
-  }
-  return (
-    <>
-      <div class="flex min-h-screen">
-        {/* Fixed Sidebar */}
-        <aside class="fixed flex flex-col left-0 top-0 w-[30%] h-screen bg-gray-100 p-8 overflow-y-auto dark:bg-slate-800">
-          {/* Wrapper untuk h1 di tengah */}
-          <div class="flex-1 flex justify-center items-center">
-            <div class="mb-8 text-right w-full">
-              <h1 class="text-3xl font-bold text-gray-800 text-slate-600 dark:text-white">
-                Animelist @{new Date().getFullYear()}
-              </h1>
-              <h2 class="text-xl text-gray-600 dark:text-gray-300">Ratings</h2>
-              <ul class="list-disc list-rating">
-                <li class="text-red-800 dark:text-red-400">R+ - Mild Nudity</li>
-                <li class="text-red-600 dark:text-red-300">R - 17+ (violence & profanity)</li>
-                <li class="text-yellow-600 dark:text-yellow-300">PG-13 - Teens 13 or older</li>
-                <li class="text-green-600 dark:text-green-300">PG - Children</li>
-                <li class="text-green-800 dark:text-green-400">G - All Ages</li>
-              </ul>
-              <nav class="mt-6">
-                <ul class="space-y-2">
-                  <li class="space-x-2">
-                    <a
-                      href="#current"
-                      class="inline-block px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-                    >
-                      Current
-                    </a>
-                    <a
-                      href="#upcoming"
-                      class="inline-block px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-600 transition-colors"
-                    >
-                      Upcoming
-                    </a>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-          </div>
+  createEffect(() => {
+    localStorage.setItem('theme', isDarkMode() ? 'dark' : 'light');
+  });
 
-          {/* Tombol toggleDarkMode di bagian paling bawah */}
-          <div class="mt-auto">
-            <button
-              onClick={toggleDarkMode}
-              class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-            >
-              {isDarkMode() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            </button>
-          </div>
-        </aside>
+  const filteredData = () => {
+    const data = animeData()?.data || [];
+    const query = searchQuery().toLowerCase();
+    if (!query) return data;
 
-        {/* Main Content Container - Push content to the right of sidebar */}
-        <main class="w-[70%] ml-[30%] bg-white dark:bg-slate-900">
-          <div class="p-8">
-            {/* Current Season Section */}
-            <div class="mb-12">
-              <h1 class="text-2xl font-bold mb-6 text-gray-700 dark:text-gray-100">Current Season</h1>
+    return data.filter(anime =>
+      anime.title.toLowerCase().includes(query) ||
+      anime.title_japanese.toLowerCase().includes(query) ||
+      anime.genres.some(genre => genre.name.toLowerCase().includes(query)) ||
+      anime.studios.some(studio => studio.name.toLowerCase().includes(query))
+    );
+  };
 
-              <article class="mb-8 bg-white rounded-lg shadow-sm p-6 border dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                <Suspense fallback={<div>Loading...</div>}>
-                  <Switch>
-                    <Match when={airingData.error}>
-                      <span>Error: {airingData.error.message}</span>
-                    </Match>
-                    <Match when={airingData()}>
-                      <table class="w-full border-collapse bg-white shadow-sm rounded-lg overflow-hidden">
-                        <thead>
-                          <tr class="bg-gray-50 border-b border-gray-200">
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              No.
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Title (members)
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Genres
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Type
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Source{' '}
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Release
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Episodes
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Studios
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Members
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Status
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                          {airingData.data.map((data, i) => {
-                            ;<tr class={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {data.title}
-                              </td>
-                              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-50">genre</td>
-                              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-50">{data.type}</td>
-                              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-50">{data.aired.from}</td>
-                              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-50">{data.episodes}</td>
-                              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-50"> </td>
-                              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-50">{data.members}</td>
-                              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-50">{data.status}</td>
-                            </tr>
-                          })}
-                        </tbody>
-                      </table>
-                    </Match>
-                  </Switch>
-                </Suspense>
-              </article>
-
-              <article class="mb-8 bg-white rounded-lg shadow-sm p-6 border dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                <header class="mb-4">
-                  <div class="flex items-center mb-4">
-                    <img
-                      src="https://placehold.co/48x48"
-                      alt="Tilo Mitra's avatar"
-                      class="w-12 h-12 rounded-full mr-4"
-                    />
-                    <h2 class="text-xl font-bold text-slate-600 dark:text-white">Welcome to Pure</h2>
-                  </div>
-
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
-                    By{' '}
-                    <a href="#" class="text-blue-500 hover:underline">
-                      Tilo Mitra
-                    </a>{' '}
-                    under{' '}
-                    <a href="#" class="bg-blue-100 px-2 py-1 rounded text-blue-700 text-sm hover:bg-blue-200">
-                      CSS
-                    </a>{' '}
-                    <a href="#" class="bg-green-100 px-2 py-1 rounded text-green-700 text-sm hover:bg-green-200">
-                      Pure
-                    </a>
-                  </p>
-                </header>
-
-                <div class="text-slate-500 dark:text-slate-400">
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore
-                    et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                    aliquip ex ea commodo consequat.
-                  </p>
-                </div>
-              </article>
-            </div>
-
-            {/* Current Season Section */}
-            <div class="mb-12">
-              <h1 class="text-2xl font-bold mb-6 text-gray-700 dark:text-gray-100">Current Season</h1>
-
-              {/* Node.js Post */}
-              <article class="mb-8 bg-white rounded-lg shadow-sm p-6 border dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                <header class="mb-4">
-                  <div class="flex items-center mb-4">
-                    <img
-                      src="https://placehold.co/48x48"
-                      alt="Eric Ferraiuolo's avatar"
-                      class="w-12 h-12 rounded-full mr-4"
-                    />
-                    <h2 class="text-xl font-bold text-slate-600 dark:text-white">
-                      Everything You Need to Know About Node.js
-                    </h2>
-                  </div>
-
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
-                    By{' '}
-                    <a href="#" class="text-blue-500 hover:underline">
-                      Eric Ferraiuolo
-                    </a>{' '}
-                    under{' '}
-                    <a href="#" class="bg-yellow-100 px-2 py-1 rounded text-yellow-700 text-sm hover:bg-yellow-200">
-                      JavaScript
-                    </a>
-                  </p>
-                </header>
-
-                <div class="text-slate-500 dark:text-slate-400">
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore
-                    et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                    aliquip ex ea commodo consequat.
-                  </p>
-                </div>
-              </article>
-
-              {/* Conference Photos Post */}
-              <article class="mb-8 bg-white rounded-lg shadow-sm p-6 border dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-                <header class="mb-4">
-                  <div class="flex items-center mb-4">
-                    <img
-                      src="https://placehold.co/48x48"
-                      alt="Reid Burke's avatar"
-                      class="w-12 h-12 rounded-full mr-4"
-                    />
-                    <h2 class="text-xl font-bold text-slate-600 dark:text-white">Photos from CSSConf and JSConf</h2>
-                  </div>
-
-                  <p class="text-sm text-gray-600 dark:text-gray-300">
-                    By{' '}
-                    <a href="#" class="text-blue-500 hover:underline">
-                      Reid Burke
-                    </a>{' '}
-                    under{' '}
-                    <a href="#" class="bg-gray-100 px-2 py-1 rounded text-gray-700 text-sm hover:bg-gray-200">
-                      Uncategorized
-                    </a>
-                  </p>
-                </header>
-
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <img
-                      src="https://placehold.co/400x300"
-                      alt="Photo of someone working poolside at a resort"
-                      class="w-full h-48 object-cover rounded-lg mb-2"
-                    />
-                    <h3 class="text-lg font-semibold">CSSConf Photos</h3>
-                  </div>
-                  <div>
-                    <img
-                      src="https://placehold.co/400x300"
-                      alt="Photo of the sunset on the beach"
-                      class="w-full h-48 object-cover rounded-lg mb-2"
-                    />
-                    <h3 class="text-lg font-semibold">JSConf Photos</h3>
-                  </div>
-                </div>
-              </article>
-            </div>
-
-            {/* Footer */}
-            <footer class="border-t dark:border-t-slate-700 pt-4">
-              <div class="flex justify-center">
-                <a
-                  href="https://github.com/andrizan/malanilist"
-                  class="text-slate-500 dark:text-slate-400"
-                  target="_blank"
-                >
-                  GitHub
-                </a>
-                <span class="text-slate-700 dark:text-slate-500">
-                  , API by{' '}
-                  <a href="https://jikan.moe" class="text-slate-500 dark:text-slate-400" target="_blank">
-                    Jikan
-                  </a>
-                </span>
-              </div>
-            </footer>
-          </div>
-        </main>
+  const SearchBox: Component = () => {
+    return (
+      <div class="relative">
+        <input
+          type="text"
+          placeholder="Search anime..."
+          value={searchQuery()}
+          onInput={(e) => setSearchQuery(e.currentTarget.value)}
+          class="pl-10 w-full max-w-sm rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+        </span>
       </div>
-    </>
-  )
-}
+    );
+  };
 
-export default App
+  const getRowClass = (index: number): string => {
+    return `
+      ${isDarkMode()
+        ? 'hover:bg-gray-700 text-gray-300'
+        : 'hover:bg-gray-50 text-gray-900'}
+      ${index % 2 === 0
+        ? isDarkMode() ? 'bg-gray-800' : 'bg-white'
+        : isDarkMode() ? 'bg-gray-750' : 'bg-gray-50'}
+    `;
+  };
+
+  const getStatusClass = (status: string): string => {
+    return `px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+      ${status === 'Currently Airing'
+        ? 'bg-green-100 text-green-800'
+        : 'bg-gray-100 text-gray-800'}`;
+  };
+
+  const Pagination: Component = () => {
+    const pagination = () => animeData()?.pagination;
+    const totalPages = () => Math.ceil((pagination()?.items.total || 0) / PAGE_SIZE);
+
+    const pageNumbers = () => {
+      const current = currentPage();
+      const total = totalPages();
+      const pages: (number | string)[] = [];
+
+      if (total <= 7) {
+        return Array.from({ length: total }, (_, i) => i + 1);
+      }
+
+      pages.push(1);
+      if (current > 3) pages.push('...');
+
+      for (let i = Math.max(2, current - 1); i <= Math.min(current + 1, total - 1); i++) {
+        pages.push(i);
+      }
+
+      if (current < total - 2) pages.push('...');
+      pages.push(total);
+
+      return pages;
+    };
+
+    return (
+      <div class="flex items-center justify-center mt-4 space-x-1">
+        <button
+          class={`px-3 py-1 rounded ${currentPage() === 1 || animeData.loading
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
+          disabled={currentPage() === 1 || animeData.loading}
+          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+        >
+          Previous
+        </button>
+
+        <For each={pageNumbers()}>
+          {(pageNum) => (
+            <Show
+              when={typeof pageNum === 'number'}
+              fallback={<span class="px-2">...</span>}
+            >
+              <button
+                class={`px-3 py-1 rounded ${pageNum === currentPage()
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                  }`}
+                onClick={() => setCurrentPage(pageNum as number)}
+                disabled={animeData.loading}
+              >
+                {pageNum}
+              </button>
+            </Show>
+          )}
+        </For>
+
+        <button
+          class={`px-3 py-1 rounded ${!pagination()?.has_next_page || animeData.loading
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
+          disabled={!pagination()?.has_next_page || animeData.loading}
+          onClick={() => setCurrentPage(p => p + 1)}
+        >
+          Next
+        </button>
+      </div>
+    );
+  };
+
+  return (
+    <div class={`min-h-screen ${isDarkMode() ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+      <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class={`text-2xl font-bold ${isDarkMode() ? 'text-white' : 'text-gray-900'}`}>
+            Anime Musim Ini
+          </h1>
+          <button
+            onClick={() => setIsDarkMode(!isDarkMode())}
+            class={`px-4 py-2 rounded-lg transition flex flex-row ${isDarkMode() ? 'dark bg-gray-50 text-gray-900' : 'bg-gray-900 text-white '}`}
+          >
+            <div class='mr-2'>
+              {isDarkMode() ? <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg> : <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>}
+            </div>
+
+            {isDarkMode() ? 'Light Mode' : 'Dark Mode'}
+          </button>
+        </div>
+        <div class='mb-4'>
+          <SearchBox />
+        </div>
+        <Show
+          when={!animeData.loading}
+          fallback={
+            <div class="flex justify-center items-center h-64">
+              <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+            </div>
+          }
+        >
+          <Show
+            when={!animeData.error}
+            fallback={
+              <div class="text-red-500 text-center p-4 bg-red-100 rounded-lg">
+                Error: {animeData.error?.toString()}
+              </div>
+            }
+          >
+            <Show
+              when={filteredData().length > 0}
+              fallback={
+                <div class="text-center py-8 text-gray-500">
+                  No anime found matching your search criteria
+                </div>
+              }
+            >
+              <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                <table class={`min-w-full ${isDarkMode() ? 'dark:bg-gray-800' : 'bg-white'}`}>
+                  <thead>
+                    <tr class={isDarkMode() ? 'bg-gray-700' : 'bg-gray-50'}>
+                      <th class="px-6 py-3 text-left text-gray-500 uppercase whitespace-nowrap text-sm font-medium truncate">No.</th>
+                      <th class="px-6 py-3 text-left text-gray-500 uppercase whitespace-nowrap text-sm font-medium truncate">Title</th>
+                      <th class="px-6 py-3 text-left text-gray-500 uppercase whitespace-nowrap text-sm font-medium truncate">Genres</th>
+                      <th class="px-6 py-3 text-left text-gray-500 uppercase whitespace-nowrap text-sm font-medium truncate">Type</th>
+                      <th class="px-6 py-3 text-left text-gray-500 uppercase whitespace-nowrap text-sm font-medium truncate">Source</th>
+                      <th class="px-6 py-3 text-left text-gray-500 uppercase whitespace-nowrap text-sm font-medium truncate">Release</th>
+                      <th class="px-6 py-3 text-left text-gray-500 uppercase whitespace-nowrap text-sm font-medium truncate">Episodes</th>
+                      <th class="px-6 py-3 text-left text-gray-500 uppercase whitespace-nowrap text-sm font-medium truncate">Studios</th>
+                      <th class="px-6 py-3 text-left text-gray-500 uppercase whitespace-nowrap text-sm font-medium truncate">Members</th>
+                      <th class="px-6 py-3 text-left text-gray-500 uppercase whitespace-nowrap text-sm font-medium truncate">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200">
+                    <For each={filteredData()}>
+                      {(anime: AnimeData, index) => (
+                        <tr class={getRowClass(index())}>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            {((currentPage() - 1) * PAGE_SIZE) + index() + 1}
+                          </td>
+                          <td class="px-6 py-4 text-sm font-medium">
+                            <div class="flex items-center">
+                              <img
+                                src={anime.images?.jpg?.small_image_url}
+                                alt={anime.title}
+                                class="w-10 h-14 object-cover rounded mr-3"
+                              />
+                              <div class="flex flex-col">
+                                <a href={anime.url} target="_blank" class="flex flex-row cursor-pointer min-w-[14rem] max-w-[24rem] whitespace-normal">
+                                  {anime.title}
+                                  <div class="mx-1 text-gray-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right h-4 w-4">
+                                      <path d="M7 7h10v10" /><path d="M7 17 17 7" />
+                                    </svg>
+                                  </div>
+                                </a>
+                                <div class="text-xs text-gray-500">{anime.title_japanese}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td class="px-6 py-4 text-sm min-w-[12rem] max-w-[18rem] whitespace-normal">
+                            {anime.genres?.map(genre => genre.name).join(', ') || 'TBA'}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm truncate">{anime.type}</td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm truncate">{anime.source}</td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm truncate">
+                            {formatDate(anime.aired.from) || 'TBA'}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm truncate text-center">
+                            {anime.episodes || 'TBA'}
+                          </td>
+                          <td class="px-6 py-4 text-sm min-w-[12rem] max-w-[18rem] whitespace-normal">
+                            {anime.studios?.map(studio => studio.name).join(', ') || 'TBA'}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm truncate text-center">
+                            {anime.members?.toLocaleString()}
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm truncate">
+                            <span class={getStatusClass(anime.status) || 'TBA'}>
+                              {anime.status}
+                            </span>
+                          </td>
+                        </tr>
+                      )}
+                    </For>
+                  </tbody>
+                </table>
+              </div>
+            </Show>
+            <Pagination />
+          </Show>
+        </Show>
+      </div>
+      {/* Footer */}
+      <footer class="border-t dark:border-t-slate-700 pt-4">
+        <div class="flex justify-center">
+          <span class="text-slate-700 dark:text-slate-500">
+            Forks on{' '}
+            <a
+              href="https://github.com/andrizan/malanilist"
+              class="text-slate-500 dark:text-slate-400 underline"
+              target="_blank"
+            >
+              GitHub
+            </a>
+          </span>
+          <span class="text-slate-700 dark:text-slate-500">
+            , API by{' '}
+            <a href="https://jikan.moe" class="text-slate-500 dark:text-slate-400 underline" target="_blank">
+              Jikan
+            </a>
+          </span>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default AnimeTable;
