@@ -19,13 +19,14 @@ interface Aired {
   to: string | null;
 }
 
-export interface AnimeData {
+export interface AnimeAiringData {
   mal_id: number;
   url: string;
   title: string;
   title_japanese: string;
   images: AnimeImage;
   genres: Genre[];
+  rating: string;
   type: string;
   source: string;
   aired: Aired;

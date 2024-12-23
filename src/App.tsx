@@ -1,11 +1,17 @@
 import { Component, createSignal, createResource, createEffect, For, Show } from 'solid-js';
-import { AnimeData } from './interface/animelist';
+import { AnimeAiringData } from './interface/animelist';
 import { PaginationInfo } from './interface/paginate';
 
-const PAGE_SIZE = 15;
+const fetchAiringAnime = async (query: string, page: number, pageSize: number): Promise<{ data: AnimeAiringData[], pagination: PaginationInfo }> => {
+  const baseURL = query
+    ? `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&page=${page}&limit=${pageSize}&start_date=${new Date().getFullYear()}-01-01&end_date=${new Date().getFullYear()}-12-31`
+    : `https://api.jikan.moe/v4/seasons/now?page=${page}&limit=${pageSize}`;
 
-const fetchAiringAnime = async (page: number): Promise<{ data: AnimeData[], pagination: PaginationInfo }> => {
-  const response = await fetch(`https://api.jikan.moe/v4/seasons/now?page=${page}&limit=${PAGE_SIZE}`);
+  const response = await fetch(baseURL);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch: ${response.statusText}`);
+  }
+
   const data = await response.json();
   return data;
 };
@@ -18,30 +24,25 @@ const formatDate = (dateString: string): string => {
   });
 };
 
-const AnimeTable: Component = () => {
+const App: Component = () => {
   const [currentPage, setCurrentPage] = createSignal<number>(1);
+  const [pageSize, setPageSize] = createSignal<number>(15);
   const [isDarkMode, setIsDarkMode] = createSignal<boolean>(
     localStorage.getItem('theme') === 'dark'
   );
   const [searchQuery, setSearchQuery] = createSignal<string>('');
-  const [animeData] = createResource(currentPage, fetchAiringAnime);
+  const [inputValue, setInputValue] = createSignal(searchQuery());
+
+  const [airingData] = createResource(
+    () => ({ query: searchQuery(), page: currentPage(), pageSize: pageSize() }),
+    ({ query, page,pageSize }) => fetchAiringAnime(query, page, pageSize)
+  );
 
   createEffect(() => {
     localStorage.setItem('theme', isDarkMode() ? 'dark' : 'light');
   });
 
-  const filteredData = () => {
-    const data = animeData()?.data || [];
-    const query = searchQuery().toLowerCase();
-    if (!query) return data;
-
-    return data.filter(anime =>
-      anime.title.toLowerCase().includes(query) ||
-      anime.title_japanese.toLowerCase().includes(query) ||
-      anime.genres.some(genre => genre.name.toLowerCase().includes(query)) ||
-      anime.studios.some(studio => studio.name.toLowerCase().includes(query))
-    );
-  };
+  const getAringData = () => airingData()?.data || [];
 
   const SearchBox: Component = () => {
     return (
@@ -49,8 +50,13 @@ const AnimeTable: Component = () => {
         <input
           type="text"
           placeholder="Search anime..."
-          value={searchQuery()}
-          onInput={(e) => setSearchQuery(e.currentTarget.value)}
+          value={inputValue()}
+          onInput={(e) => setInputValue(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch(inputValue());
+            }
+          }}
           class="pl-10 w-full max-w-sm rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -58,6 +64,11 @@ const AnimeTable: Component = () => {
         </span>
       </div>
     );
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
   };
 
   const getRowClass = (index: number): string => {
@@ -79,8 +90,8 @@ const AnimeTable: Component = () => {
   };
 
   const Pagination: Component = () => {
-    const pagination = () => animeData()?.pagination;
-    const totalPages = () => Math.ceil((pagination()?.items.total || 0) / PAGE_SIZE);
+    const pagination = () => airingData()?.pagination;
+    const totalPages = () => Math.ceil((pagination()?.items.total || 0) / pageSize());
 
     const pageNumbers = () => {
       const current = currentPage();
@@ -107,11 +118,11 @@ const AnimeTable: Component = () => {
     return (
       <div class="flex items-center justify-center mt-4 space-x-1">
         <button
-          class={`px-3 py-1 rounded ${currentPage() === 1 || animeData.loading
-              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
+          class={`px-3 py-1 rounded ${currentPage() === 1 || airingData.loading
+              ? `${isDarkMode() ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`
+              : `${isDarkMode() ? 'dark bg-gray-300 text-gray-900 hover:bg-gray-400' : 'bg-gray-900 text-gray-200 hover:bg-gray-700'}`
             }`}
-          disabled={currentPage() === 1 || animeData.loading}
+          disabled={currentPage() === 1 || airingData.loading}
           onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
         >
           Previous
@@ -121,15 +132,15 @@ const AnimeTable: Component = () => {
           {(pageNum) => (
             <Show
               when={typeof pageNum === 'number'}
-              fallback={<span class="px-2">...</span>}
+              fallback={<span class={'px-2 text-gray-400'}>...</span>}
             >
               <button
                 class={`px-3 py-1 rounded ${pageNum === currentPage()
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                    ? `${isDarkMode() ? 'dark bg-gray-300 text-gray-900' : 'bg-gray-900 text-gray-200'}`
+                    : `${isDarkMode() ? 'bg-gray-700 text-gray-500 hover:bg-gray-600 hover:text-gray-400' : 'bg-gray-200 text-gray-500 hover:bg-gray-300 hover:text-gray-600'}`
                   }`}
                 onClick={() => setCurrentPage(pageNum as number)}
-                disabled={animeData.loading}
+                disabled={airingData.loading}
               >
                 {pageNum}
               </button>
@@ -138,11 +149,11 @@ const AnimeTable: Component = () => {
         </For>
 
         <button
-          class={`px-3 py-1 rounded ${!pagination()?.has_next_page || animeData.loading
-              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-500 text-white hover:bg-blue-600'
+          class={`px-3 py-1 rounded ${!pagination()?.has_next_page || airingData.loading
+              ? `${isDarkMode() ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`
+              : `${isDarkMode() ? 'dark bg-gray-300 text-gray-900 hover:bg-gray-400' : 'bg-gray-900 text-gray-200 hover:bg-gray-700'}`
             }`}
-          disabled={!pagination()?.has_next_page || animeData.loading}
+          disabled={!pagination()?.has_next_page || airingData.loading}
           onClick={() => setCurrentPage(p => p + 1)}
         >
           Next
@@ -169,11 +180,37 @@ const AnimeTable: Component = () => {
             {isDarkMode() ? 'Light Mode' : 'Dark Mode'}
           </button>
         </div>
-        <div class='mb-4'>
-          <SearchBox />
+        <div class="flex justify-between">
+          <div class='mb-4 flex flex-row'>
+            <SearchBox />
+
+            <div class="w-[60px] mx-2">
+              <div class="relative">
+                <select
+                    class=" w-full max-w-sm rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => setPageSize(parseInt(e.currentTarget.value))}
+                    value={pageSize()}
+                    >
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="25">25</option>
+                </select>
+              </div>
+            </div>
+
+            <button
+              onClick={() => handleSearch(inputValue())}
+              class={`px-4 py-2 rounded-lg transition flex flex-row ${isDarkMode() ? 'dark bg-gray-50 text-gray-900' : 'bg-gray-900 text-gray-200 '}`}
+            >
+              Find
+            </button>
+          </div>
+          <h2 class={`${isDarkMode() ? 'text-gray-200' : 'text-gry-800 '}`}>
+            Total Data: {airingData()?.pagination.items.total}
+          </h2>
         </div>
         <Show
-          when={!animeData.loading}
+          when={!airingData.loading}
           fallback={
             <div class="flex justify-center items-center h-64">
               <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
@@ -181,15 +218,15 @@ const AnimeTable: Component = () => {
           }
         >
           <Show
-            when={!animeData.error}
+            when={!airingData.error}
             fallback={
               <div class="text-red-500 text-center p-4 bg-red-100 rounded-lg">
-                Error: {animeData.error?.toString()}
+                Error: {airingData.error?.toString()}
               </div>
             }
           >
             <Show
-              when={filteredData().length > 0}
+              when={getAringData().length > 0}
               fallback={
                 <div class="text-center py-8 text-gray-500">
                   No anime found matching your search criteria
@@ -213,11 +250,11 @@ const AnimeTable: Component = () => {
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-gray-200">
-                    <For each={filteredData()}>
-                      {(anime: AnimeData, index) => (
+                    <For each={getAringData()}>
+                      {(anime: AnimeAiringData, index) => (
                         <tr class={getRowClass(index())}>
                           <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            {((currentPage() - 1) * PAGE_SIZE) + index() + 1}
+                            {((currentPage() - 1) * pageSize()) + index() + 1}
                           </td>
                           <td class="px-6 py-4 text-sm font-medium">
                             <div class="flex items-center">
@@ -227,7 +264,7 @@ const AnimeTable: Component = () => {
                                 class="w-10 h-14 object-cover rounded mr-3"
                               />
                               <div class="flex flex-col">
-                                <a href={anime.url} target="_blank" class="flex flex-row cursor-pointer min-w-[14rem] max-w-[24rem] whitespace-normal">
+                                <a href={anime.url} target="_blank" class="flex flex-row cursor-pointer min-w-[14rem] max-w-[24rem] whitespace-normal hover:underline">
                                   {anime.title}
                                   <div class="mx-1 text-gray-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right h-4 w-4">
@@ -239,10 +276,10 @@ const AnimeTable: Component = () => {
                               </div>
                             </div>
                           </td>
-                          <td class="px-6 py-4 text-sm min-w-[12rem] max-w-[18rem] whitespace-normal">
+                          <td class="px-6 py-4 text-sm min-w-[10rem] max-w-[15rem] whitespace-normal">
                             {anime.genres?.map(genre => genre.name).join(', ') || 'TBA'}
                           </td>
-                          <td class="px-6 py-4 whitespace-nowrap text-sm truncate">{anime.type}</td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm truncate">{anime.type || 'TBA'} ({anime.rating.split(' ')[0] || 'TBA'})</td>
                           <td class="px-6 py-4 whitespace-nowrap text-sm truncate">{anime.source}</td>
                           <td class="px-6 py-4 whitespace-nowrap text-sm truncate">
                             {formatDate(anime.aired.from) || 'TBA'}
@@ -257,8 +294,8 @@ const AnimeTable: Component = () => {
                             {anime.members?.toLocaleString()}
                           </td>
                           <td class="px-6 py-4 whitespace-nowrap text-sm truncate">
-                            <span class={getStatusClass(anime.status) || 'TBA'}>
-                              {anime.status}
+                            <span class={getStatusClass(anime.status)}>
+                              {anime.status || 'TBA'}
                             </span>
                           </td>
                         </tr>
@@ -273,7 +310,7 @@ const AnimeTable: Component = () => {
         </Show>
       </div>
       {/* Footer */}
-      <footer class="border-t dark:border-t-slate-700 pt-4">
+      <footer class="border-t dark:border-t-slate-700 py-4">
         <div class="flex justify-center">
           <span class="text-slate-700 dark:text-slate-500">
             Forks on{' '}
@@ -297,4 +334,4 @@ const AnimeTable: Component = () => {
   );
 };
 
-export default AnimeTable;
+export default App;
