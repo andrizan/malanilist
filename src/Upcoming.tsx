@@ -164,7 +164,12 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
 
   return (
     <div>
-      <h1 class={`text-2xl font-bold mb-4 ${isDarkMode() ? 'text-white' : 'text-gray-900'}`}>Next season</h1>
+      <h1
+        class={`text-2xl font-bold mb-4 pt-52 md:pt-28 ${isDarkMode() ? 'text-gray-200' : 'text-gray-800'}`}
+        id="upcoming"
+      >
+        Next season
+      </h1>
       <div class="w-full my-4">
         <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
           {/* Search Section */}
@@ -174,7 +179,7 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
             {/* Page Size Selector */}
             <div class="w-full sm:w-20">
               <select
-                class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={(e) => setPageSize(parseInt(e.currentTarget.value))}
                 value={pageSize()}
               >
@@ -256,7 +261,7 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
                     </th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                   <For each={getAringData()}>
                     {(anime: AnimeList, index) => (
                       <tr class={getRowClass(index())}>
