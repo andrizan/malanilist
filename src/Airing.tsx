@@ -177,7 +177,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
             <SearchBox />
 
             {/* Page Size Selector */}
-            <div class="w-full sm:w-16">
+            <div class="w-full sm:w-20">
               <select
                 class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={(e) => setPageSize(parseInt(e.currentTarget.value))}
