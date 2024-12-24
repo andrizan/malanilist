@@ -73,7 +73,7 @@ const App: Component = () => {
   return (
     <div class={`min-h-screen ${isDarkMode() ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
       <nav class="w-full fixed border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900 z-10 opacity-90">
-        <div class="relative container mx-auto p-4">
+        <div class="relative container mx-auto p-4 md:px-24 [@media(min-width:1920px)]:px-4">
           <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
             <div class="w-full md:w-auto flex-1 flex flex-col sm:flex-row gap-4">
               <BrushLink href="#current">Current season</BrushLink>
@@ -133,7 +133,7 @@ const App: Component = () => {
           </div>
         </div>
       </nav>
-      <div class="container mx-auto px-4 py-8">
+      <div class="container mx-auto p-4 md:px-24 [@media(min-width:1920px)]:px-4 py-8">
         <Airing isDarkMode={isDarkMode} />
 
         <hr class="mt-24 dark:border-gray-700" />
