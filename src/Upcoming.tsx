@@ -44,7 +44,7 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
 
   const SearchBox: Component = () => {
     return (
-      <div class="relative">
+      <div class="relative w-full sm:w-64 md:w-80">
         <input
           type="text"
           placeholder="Search anime..."
@@ -55,20 +55,19 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
               handleSearch(inputValue())
             }
           }}
-          class="pl-10 w-full max-w-sm rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="pl-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="lucide lucide-search"
           >
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.3-4.3" />
@@ -166,14 +165,16 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
   return (
     <div>
       <h1 class={`text-2xl font-bold mb-4 ${isDarkMode() ? 'text-white' : 'text-gray-900'}`}>Next season</h1>
-      <div class="flex justify-between">
-        <div class="mb-4 flex flex-row">
-          <SearchBox />
+      <div class="w-full my-4">
+        <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+          {/* Search Section */}
+          <div class="w-full md:w-auto flex-1 flex flex-col sm:flex-row gap-2">
+            <SearchBox />
 
-          <div class="w-[60px] mx-2">
-            <div class="relative">
+            {/* Page Size Selector */}
+            <div class="w-full sm:w-16">
               <select
-                class=" w-full max-w-sm rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={(e) => setPageSize(parseInt(e.currentTarget.value))}
                 value={pageSize()}
               >
@@ -182,18 +183,25 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
                 <option value="25">25</option>
               </select>
             </div>
+
+            {/* Search Button */}
+            <button
+              onClick={() => handleSearch(inputValue())}
+              class={`w-full sm:w-auto px-4 py-2 rounded-lg transition flex items-center justify-center ${
+                isDarkMode() ? 'dark bg-gray-50 text-gray-900' : 'bg-gray-900 text-gray-200'
+              }`}
+            >
+              Find
+            </button>
           </div>
 
-          <button
-            onClick={() => handleSearch(inputValue())}
-            class={`px-4 py-2 rounded-lg transition flex flex-row ${isDarkMode() ? 'dark bg-gray-50 text-gray-900' : 'bg-gray-900 text-gray-200 '}`}
-          >
-            Find
-          </button>
+          {/* Total Count */}
+          <div class="w-full md:w-auto flex justify-start md:justify-end">
+            <h2 class={`text-sm md:text-base ${isDarkMode() ? 'text-gray-200' : 'text-gray-800'}`}>
+              Total Data: {upcomingData()?.pagination.items.total}
+            </h2>
+          </div>
         </div>
-        <h2 class={`${isDarkMode() ? 'text-gray-200' : 'text-gry-800 '}`}>
-          Total Data: {upcomingData()?.pagination.items.total}
-        </h2>
       </div>
       <Show
         when={!upcomingData.loading}
