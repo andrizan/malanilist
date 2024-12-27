@@ -164,10 +164,7 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
 
   return (
     <div>
-      <h1
-        class={`text-2xl font-bold mb-4 pt-52 md:pt-28 ${isDarkMode() ? 'text-gray-200' : 'text-gray-800'}`}
-        id="upcoming"
-      >
+      <h1 class={`text-2xl font-bold mb-4 pt-12 ${isDarkMode() ? 'text-gray-200' : 'text-gray-800'}`} id="upcoming">
         Next season
       </h1>
       <div class="w-full my-4">

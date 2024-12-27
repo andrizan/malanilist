@@ -1,4 +1,4 @@
-import { Component, createEffect, createSignal, JSX } from 'solid-js'
+import { Component, createEffect, createSignal, JSX, onCleanup, onMount } from 'solid-js'
 import Airing from './Airing'
 import Upcoming from './Upcoming'
 
@@ -12,41 +12,63 @@ const easeInOutQuad: EasingFunction = (t: number) => {
 
 const App: Component = () => {
   const [isDarkMode, setIsDarkMode] = createSignal<boolean>(localStorage.getItem('theme') === 'dark')
+  const [isHidden, setIsHidden] = createSignal(false)
+  const [showToTopButton, setShowToTopButton] = createSignal(false)
+  let lastScrollY = 0
 
   createEffect(() => {
     localStorage.setItem('theme', isDarkMode() ? 'dark' : 'light')
   })
 
-  const BrushLink = (props: { href: string; children: JSX.Element; onClick?: () => void }) => {
-    const smoothScroll = (
-      target: HTMLElement,
-      duration: number = 1000,
-      easing: EasingFunction = easeInOutQuad,
-    ): void => {
-      const start = window.scrollY
-      const end = target.getBoundingClientRect().top + window.scrollY
-      const distance = end - start
-      let startTime: number | null = null
-
-      const animateScroll = (currentTime: number): void => {
-        if (startTime === null) startTime = currentTime
-        const timeElapsed = currentTime - startTime
-        const progress = Math.min(timeElapsed / duration, 1)
-        const easingProgress = easing(progress)
-        window.scrollTo(0, start + easingProgress * distance)
-
-        if (timeElapsed < duration) {
-          requestAnimationFrame(animateScroll)
-        }
+  // Add scroll event listener
+  onMount(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setIsHidden(true) // Hide navbar on scroll down
+      } else {
+        setIsHidden(false) // Show navbar on scroll up
       }
-
-      requestAnimationFrame(animateScroll)
+      lastScrollY = currentScrollY
     }
 
+    window.addEventListener('scroll', handleScroll)
+
+    // Cleanup the event listener
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  })
+
+  const smoothScroll = (target: HTMLElement, duration: number = 1000, easing: EasingFunction = easeInOutQuad): void => {
+    const start = window.scrollY
+    const end = target.getBoundingClientRect().top + window.scrollY
+    const distance = end - start
+    let startTime: number | null = null
+
+    const animateScroll = (currentTime: number): void => {
+      if (startTime === null) startTime = currentTime
+      const timeElapsed = currentTime - startTime
+      const progress = Math.min(timeElapsed / duration, 1)
+      const easingProgress = easing(progress)
+      window.scrollTo(0, start + easingProgress * distance)
+
+      if (timeElapsed < duration) {
+        requestAnimationFrame(animateScroll)
+      }
+    }
+
+    requestAnimationFrame(animateScroll)
+  }
+
+  const BrushLink = (props: { href: string; children: JSX.Element; onClick?: () => void }) => {
     const scrollToSection = () => {
       const element = document.getElementById(props.href.slice(1)) // Remove "#" from href
       if (element) {
         smoothScroll(element, 800) // Scroll over 800ms
+        if (window.scrollY > 200) {
+          setShowToTopButton(true)
+        }
       }
       if (props.onClick) {
         props.onClick()
@@ -70,9 +92,34 @@ const App: Component = () => {
     )
   }
 
+  // Scroll listener
+  const handleScroll = () => {
+    if (window.scrollY > 200) {
+      setShowToTopButton(true)
+    } else {
+      setShowToTopButton(false)
+    }
+  }
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    smoothScroll(document.body, 800) // Scroll over 800ms
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Attach scroll listener
+  window.addEventListener('scroll', handleScroll)
+  onCleanup(() => {
+    window.removeEventListener('scroll', handleScroll)
+  })
+
   return (
     <div class={`min-h-screen ${isDarkMode() ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
-      <nav class="w-full fixed border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900 z-10 opacity-90">
+      <nav
+        class={`w-full fixed border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900 z-10 opacity-90 transition-transform duration-300 ${
+          isHidden() ? '-translate-y-full' : 'translate-y-0'
+        }`}
+      >
         <div class="relative container mx-auto p-4 md:px-24 [@media(min-width:1920px)]:px-4">
           <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
             <div class="w-full md:w-auto flex-1 flex flex-col sm:flex-row gap-4">
@@ -136,7 +183,7 @@ const App: Component = () => {
       <div class="container mx-auto p-4 md:px-24 [@media(min-width:1920px)]:px-4 py-8">
         <Airing isDarkMode={isDarkMode} />
 
-        <hr class="mt-24 dark:border-gray-700" />
+        <hr class="mt-16 dark:border-gray-700" />
 
         <Upcoming isDarkMode={isDarkMode} />
       </div>
@@ -161,6 +208,29 @@ const App: Component = () => {
           </span>
         </div>
       </footer>
+
+      <button
+        onClick={scrollToTop}
+        class={`fixed bottom-4 right-4 p-3 rounded-full bg-gray-900 dark:bg-gray-50 text-gray-50 dark:text-gray-800 shadow-lg transition-opacity ${
+          showToTopButton() ? '' : 'hidden'
+        }`}
+        aria-label="Scroll to top"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-chevron-up"
+        >
+          <path d="m18 15-6-6-6 6" />
+        </svg>
+      </button>
     </div>
   )
 }
