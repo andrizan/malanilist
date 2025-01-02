@@ -209,7 +209,7 @@ const Upcoming: Component<DarkModeProps> = ({ isDarkMode }) => {
         when={!upcomingData.loading}
         fallback={
           <div class="flex justify-center items-center h-64">
-            <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent" />
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 dark:border-gray-200 border-t-gray-200 dark:border-t-gray-700" />
           </div>
         }
       >
