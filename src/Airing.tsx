@@ -1,7 +1,7 @@
 import { Component, createSignal, createResource, For, Show } from 'solid-js'
-import { AnimeList } from './interface/animelist'
-import { PaginationInfo } from './interface/paginate'
-import { DarkModeProps } from './interface/darkmode'
+import { AnimeList } from './types/animelist'
+import { PaginationInfo } from './types/paginate'
+import { DarkModeProps } from './types/darkmode'
 
 const fetchAiringAnime = async (
   query: string,

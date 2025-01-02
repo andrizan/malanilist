@@ -1,4 +1,4 @@
-export interface PaginationInfo {
+export type PaginationInfo = {
   current_page: number
   has_next_page: boolean
   items: {

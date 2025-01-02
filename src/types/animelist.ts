@@ -1,4 +1,4 @@
-interface AnimeImage {
+type AnimeImage = {
   webp?: {
     small_image_url?: string
   }
@@ -7,24 +7,24 @@ interface AnimeImage {
   }
 }
 
-interface Genre {
+type Genre = {
   mal_id: number
   name: string
   url: string
 }
 
-interface Studio {
+type Studio = {
   mal_id: number
   name: string
   url: string
 }
 
-interface Aired {
+type Aired = {
   from: string
   to: string | null
 }
 
-export interface AnimeList {
+export type AnimeList = {
   mal_id: number
   url: string
   title: string
