@@ -1,22 +1,27 @@
 interface AnimeImage {
+  webp?: {
+    small_image_url?: string
+  }
   jpg?: {
-    small_image_url?: string;
-  };
+    small_image_url?: string
+  }
 }
 
 interface Genre {
-  mal_id: number;
-  name: string;
+  mal_id: number
+  name: string
+  url: string
 }
 
 interface Studio {
-  mal_id: number;
-  name: string;
+  mal_id: number
+  name: string
+  url: string
 }
 
 interface Aired {
-  from: string;
-  to: string | null;
+  from: string
+  to: string | null
 }
 
 export interface AnimeList {
@@ -34,4 +39,5 @@ export interface AnimeList {
   studios: Studio[]
   members: number
   status: string
+  season: string
 }

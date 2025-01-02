@@ -277,7 +277,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
                         <td class="px-6 py-4 text-sm font-medium">
                           <div class="flex items-center">
                             <img
-                              src={anime.images?.jpg?.small_image_url}
+                              src={anime.images?.webp?.small_image_url || anime.images?.jpg?.small_image_url}
                               alt={anime.title}
                               class="w-10 h-14 object-cover rounded mr-3"
                             />
@@ -285,6 +285,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
                               <a
                                 href={anime.url}
                                 target="_blank"
+                                rel="noopener noreferrer"
                                 class="flex flex-row cursor-pointer min-w-[14rem] max-w-[24rem] whitespace-normal hover:underline"
                               >
                                 {anime.title}
@@ -311,7 +312,16 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
                           </div>
                         </td>
                         <td class="px-6 py-4 text-sm min-w-[10rem] max-w-[15rem] whitespace-normal">
-                          {anime.genres?.map((genre) => genre.name).join(', ') || 'TBA'}
+                          <Show when={anime.genres?.length > 0} fallback="TBA">
+                            {anime.genres.map((genre, index) => (
+                              <>
+                                <a href={genre.url} target="_blank" rel="noopener noreferrer" class="hover:underline">
+                                  {genre.name}
+                                </a>
+                                {index !== anime.genres.length - 1 ? ', ' : ''}
+                              </>
+                            ))}
+                          </Show>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm truncate">
                           {anime.type || 'TBA'} ({anime.rating?.split(' ')[0] || 'TBA'})
@@ -324,7 +334,16 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
                           {anime.episodes || 'TBA'}
                         </td>
                         <td class="px-6 py-4 text-sm min-w-[12rem] max-w-[18rem] whitespace-normal">
-                          {anime.studios?.map((studio) => studio.name).join(', ') || 'TBA'}
+                          <Show when={anime.studios?.length > 0} fallback="TBA">
+                            {anime.studios.map((studio, index) => (
+                              <>
+                                <a href={studio.url} target="_blank" rel="noopener noreferrer" class="hover:underline">
+                                  {studio.name}
+                                </a>
+                                {index !== anime.studios.length - 1 ? ', ' : ''}
+                              </>
+                            ))}
+                          </Show>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm truncate text-center">
                           {anime.members?.toLocaleString()}
