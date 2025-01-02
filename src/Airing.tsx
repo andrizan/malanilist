@@ -208,7 +208,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
           {/* Total Count */}
           <div class="w-full md:w-auto flex justify-start md:justify-end">
             <h2 class={`text-sm md:text-base ${isDarkMode() ? 'text-gray-200' : 'text-gray-800'}`}>
-              Total Data: {airingData()?.pagination.items.total}
+              Total Data: {airingData()?.pagination.items.total || 0}
             </h2>
           </div>
         </div>
