@@ -314,7 +314,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
                           {anime.genres?.map((genre) => genre.name).join(', ') || 'TBA'}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm truncate">
-                          {anime.type || 'TBA'} ({anime.rating.split(' ')[0] || 'TBA'})
+                          {anime.type || 'TBA'} ({anime.rating?.split(' ')[0] || 'TBA'})
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm truncate">{anime.source}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm truncate">
