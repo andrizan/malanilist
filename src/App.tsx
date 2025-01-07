@@ -1,6 +1,6 @@
 import { Component, createEffect, createSignal, JSX, onCleanup, onMount } from 'solid-js'
-import Airing from './Airing'
 import Upcoming from './Upcoming'
+import Seasonal from './Seasonal'
 
 // Define the type for the easing function
 type EasingFunction = (_t: number) => number
@@ -123,7 +123,7 @@ const App: Component = () => {
         <div class="relative container mx-auto p-4 md:px-24 [@media(min-width:1920px)]:px-4">
           <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
             <div class="w-full md:w-auto flex-1 flex flex-col sm:flex-row gap-4">
-              <BrushLink href="#current">Current season</BrushLink>
+              <BrushLink href="#seasonal">Seasonal</BrushLink>
               <BrushLink href="#upcoming">Next season</BrushLink>
             </div>
 
@@ -181,10 +181,9 @@ const App: Component = () => {
         </div>
       </nav>
       <div class="container mx-auto p-4 md:px-24 [@media(min-width:1920px)]:px-4 py-8">
-        <Airing isDarkMode={isDarkMode} />
+        <Seasonal isDarkMode={isDarkMode} />
 
         <hr class="mt-16 dark:border-gray-700" />
-
         <Upcoming isDarkMode={isDarkMode} />
       </div>
       {/* Footer */}

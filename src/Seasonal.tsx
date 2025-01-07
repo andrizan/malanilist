@@ -2,15 +2,19 @@ import { Component, createSignal, createResource, For, Show } from 'solid-js'
 import { AnimeList } from './types/animelist'
 import { PaginationInfo } from './types/paginate'
 import { DarkModeProps } from './types/darkmode'
+import { getDatesBySeason, getSeasonByMonth, session } from './tools/date'
 
-const fetchAiringAnime = async (
+const fetchSeasonalAnime = async (
   query: string,
+  year: number,
+  season: session,
   page: number,
   pageSize: number,
 ): Promise<{ data: AnimeList[]; pagination: PaginationInfo }> => {
+  const date = getDatesBySeason(season, year)
   const baseURL = query
-    ? `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&page=${page}&limit=${pageSize}&start_date=${new Date().getFullYear()}-01-01&end_date=${new Date().getFullYear()}-12-31`
-    : `https://api.jikan.moe/v4/seasons/now?page=${page}&limit=${pageSize}`
+    ? `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&page=${page}&limit=${pageSize}&start_date=${date.start}&end_date=${year}-12-31`
+    : `https://api.jikan.moe/v4/seasons/${year}/${season}?page=${page}&limit=${pageSize}`
 
   const response = await fetch(baseURL)
   if (!response.ok) {
@@ -29,18 +33,21 @@ const formatDate = (dateString: string): string => {
   })
 }
 
-const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
+const Seasonal: Component<DarkModeProps> = ({ isDarkMode }) => {
   const [currentPage, setCurrentPage] = createSignal<number>(1)
   const [pageSize, setPageSize] = createSignal<number>(15)
   const [searchQuery, setSearchQuery] = createSignal<string>('')
   const [inputValue, setInputValue] = createSignal(searchQuery())
+  const [seasonYear, setSeasonYear] = createSignal<number>(new Date().getFullYear())
+  const [season, setSeason] = createSignal<session>(getSeasonByMonth(new Date().getMonth()) || 'winter')
 
-  const [airingData] = createResource(
-    () => ({ query: searchQuery(), page: currentPage(), pageSize: pageSize() }),
-    ({ query, page, pageSize }) => fetchAiringAnime(query, page, pageSize),
+  const [animeData] = createResource(
+    () => ({ query: searchQuery(), year: seasonYear(), season: season(), page: currentPage(), pageSize: pageSize() }),
+    ({ query, year, season, page, pageSize }) => fetchSeasonalAnime(query, year, season, page, pageSize),
   )
 
-  const getAringData = () => airingData()?.data || []
+  const getAnimeData = () => animeData()?.data || []
+  const years = Array.from({ length: 50 }, (_, i) => seasonYear() - i)
 
   const SearchBox: Component = () => {
     return (
@@ -95,7 +102,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
   }
 
   const Pagination: Component = () => {
-    const pagination = () => airingData()?.pagination
+    const pagination = () => animeData()?.pagination
     const totalPages = () => Math.ceil((pagination()?.items.total || 0) / pageSize())
 
     const pageNumbers = () => {
@@ -124,11 +131,11 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
       <div class="flex items-center justify-center mt-4 space-x-1">
         <button
           class={`px-3 py-1 rounded ${
-            currentPage() === 1 || airingData.loading
+            currentPage() === 1 || animeData.loading
               ? `${isDarkMode() ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`
               : `${isDarkMode() ? 'dark bg-gray-300 text-gray-900 hover:bg-gray-400' : 'bg-gray-900 text-gray-200 hover:bg-gray-700'}`
           }`}
-          disabled={currentPage() === 1 || airingData.loading}
+          disabled={currentPage() === 1 || animeData.loading}
           onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
         >
           Previous
@@ -144,7 +151,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
                     : `${isDarkMode() ? 'bg-gray-700 text-gray-500 hover:bg-gray-600 hover:text-gray-400' : 'bg-gray-200 text-gray-500 hover:bg-gray-300 hover:text-gray-600'}`
                 }`}
                 onClick={() => setCurrentPage(pageNum as number)}
-                disabled={airingData.loading}
+                disabled={animeData.loading}
               >
                 {pageNum}
               </button>
@@ -154,11 +161,11 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
 
         <button
           class={`px-3 py-1 rounded ${
-            !pagination()?.has_next_page || airingData.loading
+            !pagination()?.has_next_page || animeData.loading
               ? `${isDarkMode() ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`
               : `${isDarkMode() ? 'dark bg-gray-300 text-gray-900 hover:bg-gray-400' : 'bg-gray-900 text-gray-200 hover:bg-gray-700'}`
           }`}
-          disabled={!pagination()?.has_next_page || airingData.loading}
+          disabled={!pagination()?.has_next_page || animeData.loading}
           onClick={() => setCurrentPage((p) => p + 1)}
         >
           Next
@@ -171,15 +178,38 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
     <div>
       <h1
         class={`text-2xl font-bold mb-4 pt-52 md:pt-28 ${isDarkMode() ? 'text-gray-200' : 'text-gray-800'}`}
-        id="current"
+        id="seasonal"
       >
-        Current season
+        Seasonal
       </h1>
       <div class="w-full my-4">
         <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
           {/* Search Section */}
           <div class="w-full md:w-auto flex-1 flex flex-col sm:flex-row gap-2">
             <SearchBox />
+
+            <div class="w-full sm:w-20">
+              <select
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => setSeasonYear(parseInt(e.currentTarget.value))}
+                value={seasonYear()}
+              >
+                <For each={years}>{(year) => <option value={year}>{year}</option>}</For>
+              </select>
+            </div>
+
+            <div class="w-full sm:w-28">
+              <select
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => setSeason(e.currentTarget.value as session)}
+                value={season()}
+              >
+                <option value="winter">Winter</option>
+                <option value="spring">Spring</option>
+                <option value="summer">Summer</option>
+                <option value="fall">Fall</option>
+              </select>
+            </div>
 
             {/* Page Size Selector */}
             <div class="w-full sm:w-20">
@@ -208,13 +238,13 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
           {/* Total Count */}
           <div class="w-full md:w-auto flex justify-start md:justify-end">
             <h2 class={`text-sm md:text-base ${isDarkMode() ? 'text-gray-200' : 'text-gray-800'}`}>
-              Total Data: {airingData()?.pagination.items.total || 0}
+              Total Data: {animeData()?.pagination.items.total || 0}
             </h2>
           </div>
         </div>
       </div>
       <Show
-        when={!airingData.loading}
+        when={!animeData.loading}
         fallback={
           <div class="flex justify-center items-center h-64">
             <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 dark:border-gray-200 border-t-gray-200 dark:border-t-gray-700" />
@@ -222,13 +252,13 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
         }
       >
         <Show
-          when={!airingData.error}
+          when={!animeData.error}
           fallback={
-            <div class="text-red-500 text-center p-4 bg-red-100 rounded-lg">Error: {airingData.error?.toString()}</div>
+            <div class="text-red-500 text-center p-4 bg-red-100 rounded-lg">Error: {animeData.error?.toString()}</div>
           }
         >
           <Show
-            when={getAringData().length > 0}
+            when={getAnimeData().length > 0}
             fallback={<div class="text-center py-8 text-gray-500">No anime found matching your search criteria</div>}
           >
             <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
@@ -268,7 +298,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                  <For each={getAringData()}>
+                  <For each={getAnimeData()}>
                     {(anime: AnimeList, index) => (
                       <tr class={getRowClass(index())}>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -365,4 +395,4 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
   )
 }
 
-export default Airing
+export default Seasonal
