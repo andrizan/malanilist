@@ -32,6 +32,7 @@ export type AnimeList = {
   images: AnimeImage
   genres: Genre[]
   rating: string
+  duration: string
   type: string
   source: string
   aired: Aired

@@ -361,7 +361,8 @@ const Seasonal: Component<DarkModeProps> = ({ isDarkMode }) => {
                           {anime.aired.from ? formatDate(anime.aired.from) : 'TBA'}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm truncate text-center">
-                          {anime.episodes || 'TBA'}
+                          {anime.episodes || 'TBA'} (
+                          {anime.duration == 'Unknown' ? 'TBA' : anime.duration.replace(' per ep', '')})
                         </td>
                         <td class="px-6 py-4 text-sm min-w-[12rem] max-w-[18rem] whitespace-normal">
                           <Show when={anime.studios?.length > 0} fallback="TBA">
