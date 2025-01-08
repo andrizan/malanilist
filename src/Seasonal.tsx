@@ -188,7 +188,7 @@ const Seasonal: Component<DarkModeProps> = ({ isDarkMode }) => {
           <div class="w-full md:w-auto flex-1 flex flex-col sm:flex-row gap-2">
             <SearchBox />
 
-            <div class="w-full sm:w-20">
+            <div class="w-full sm:w-24">
               <select
                 class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onChange={(e) => setSeasonYear(parseInt(e.currentTarget.value))}
