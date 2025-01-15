@@ -87,7 +87,7 @@ const App: Component = () => {
         >
           {props.children}
         </a>
-        <div class="absolute bottom-0 left-0 w-full h-1/3 z-0 rounded-md group-hover:bg-yellow-300 transition-all"></div>
+        <div class="absolute bottom-0 left-0 w-full h-1/3 z-0 rounded-md group-hover:bg-yellow-300 dark:group-hover:bg-yellow-600 transition-all"></div>
       </div>
     )
   }
