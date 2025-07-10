@@ -1,0 +1,39 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "dependencyDashboard": true,
+  "packageRules": [
+    {
+      "matchDepTypes": ["dependencies"],
+      "groupName": "runtime dependencies"
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "groupName": "dev dependencies"
+    },
+    {
+      "matchPackagePatterns": ["^vite", "vite-plugin-solid"],
+      "groupName": "vite ecosystem"
+    },
+    {
+      "matchPackagePatterns": ["^eslint", "^@typescript-eslint", "eslint-plugin-.*", "eslint-config-.*"],
+      "groupName": "eslint rules and plugins"
+    },
+    {
+      "matchPackagePatterns": ["^tailwindcss", "^postcss", "^autoprefixer"],
+      "groupName": "tailwindcss and postcss"
+    },
+    {
+      "matchPackagePatterns": ["^solid-js", "^@solidjs/.*"],
+      "groupName": "solid-js"
+    },
+    {
+      "matchPackagePatterns": ["^typescript"],
+      "groupName": "typescript"
+    },
+    {
+      "matchPackagePatterns": ["^prettier"],
+      "groupName": "prettier"
+    }
+  ]
+}
