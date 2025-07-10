@@ -12,28 +12,33 @@
       "groupName": "dev dependencies"
     },
     {
-      "matchPackagePatterns": ["^vite", "vite-plugin-solid"],
-      "groupName": "vite ecosystem"
+      "groupName": "vite ecosystem",
+      "matchPackageNames": ["/^vite/", "/vite-plugin-solid/"]
     },
     {
-      "matchPackagePatterns": ["^eslint", "^@typescript-eslint", "eslint-plugin-.*", "eslint-config-.*"],
-      "groupName": "eslint rules and plugins"
+      "groupName": "eslint rules and plugins",
+      "matchPackageNames": [
+        "/^eslint/",
+        "/^@typescript-eslint/",
+        "/eslint-plugin-.*/",
+        "/eslint-config-.*/"
+      ]
     },
     {
-      "matchPackagePatterns": ["^tailwindcss", "^postcss", "^autoprefixer"],
-      "groupName": "tailwindcss and postcss"
+      "groupName": "tailwindcss and postcss",
+      "matchPackageNames": ["/^tailwindcss/", "/^postcss/", "/^autoprefixer/"]
     },
     {
-      "matchPackagePatterns": ["^solid-js", "^@solidjs/.*"],
-      "groupName": "solid-js"
+      "groupName": "solid-js",
+      "matchPackageNames": ["/^solid-js/", "/^@solidjs/.*/"]
     },
     {
-      "matchPackagePatterns": ["^typescript"],
-      "groupName": "typescript"
+      "groupName": "typescript",
+      "matchPackageNames": ["/^typescript/"]
     },
     {
-      "matchPackagePatterns": ["^prettier"],
-      "groupName": "prettier"
+      "groupName": "prettier",
+      "matchPackageNames": ["/^prettier/"]
     }
   ]
 }
