@@ -1,7 +1,8 @@
-import { Component, createSignal, createResource, For, Show } from 'solid-js'
-import { AnimeList } from './types/animelist'
-import { PaginationInfo } from './types/paginate'
-import { DarkModeProps } from './types/darkmode'
+import { For, createResource, createSignal, Show } from 'solid-js'
+import type { Component } from 'solid-js'
+import type { AnimeList } from './types/animelist'
+import type { PaginationInfo } from './types/paginate'
+import type { DarkModeProps } from './types/darkmode'
 
 const fetchAiringAnime = async (
   query: string,
@@ -69,6 +70,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
             stroke-linecap="round"
             stroke-linejoin="round"
           >
+            <title>Search Icon</title>
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.3-4.3" />
           </svg>
@@ -123,6 +125,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
     return (
       <div class="flex items-center justify-center mt-4 space-x-1">
         <button
+          type="button"
           class={`px-3 py-1 rounded ${
             currentPage() === 1 || airingData.loading
               ? `${isDarkMode() ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`
@@ -138,6 +141,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
           {(pageNum) => (
             <Show when={typeof pageNum === 'number'} fallback={<span class={'px-2 text-gray-400'}>...</span>}>
               <button
+                type="button"
                 class={`px-3 py-1 rounded ${
                   pageNum === currentPage()
                     ? `${isDarkMode() ? 'dark bg-gray-300 text-gray-900' : 'bg-gray-900 text-gray-200'}`
@@ -153,6 +157,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
         </For>
 
         <button
+          type="button"
           class={`px-3 py-1 rounded ${
             !pagination()?.has_next_page || airingData.loading
               ? `${isDarkMode() ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`
@@ -196,6 +201,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
 
             {/* Search Button */}
             <button
+              type="button"
               onClick={() => handleSearch(inputValue())}
               class={`w-full sm:w-auto px-4 py-2 rounded-lg transition flex items-center justify-center ${
                 isDarkMode() ? 'dark bg-gray-50 text-gray-900' : 'bg-gray-900 text-gray-200'
@@ -302,6 +308,7 @@ const Airing: Component<DarkModeProps> = ({ isDarkMode }) => {
                                     stroke-linejoin="round"
                                     class="lucide lucide-arrow-up-right h-4 w-4"
                                   >
+                                    <title>External Link Icon</title>
                                     <path d="M7 7h10v10" />
                                     <path d="M7 17 17 7" />
                                   </svg>

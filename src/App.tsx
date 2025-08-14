@@ -1,4 +1,5 @@
-import { Component, createEffect, createSignal, JSX, onCleanup, onMount } from 'solid-js'
+import { createEffect, createSignal, onCleanup, onMount } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import Upcoming from './Upcoming'
 import Seasonal from './Seasonal'
 
@@ -129,52 +130,64 @@ const App: Component = () => {
 
             <div class="flex justify-end">
               <button
+                type="button"
                 onClick={() => setIsDarkMode(!isDarkMode())}
-                class={`px-4 py-2 mb-6 rounded-lg transition flex flex-row ${isDarkMode() ? 'dark bg-gray-50 text-gray-900' : 'bg-gray-900 text-white '}`}
+                class={`px-3 py-3 mb-6 rounded-full transition flex flex-row ${isDarkMode() ? 'dark text-white' : 'text-gray-900 '}`}
               >
-                <div class="mr-2">
-                  {isDarkMode() ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="lucide lucide-sun"
-                    >
-                      <circle cx="12" cy="12" r="4" />
-                      <path d="M12 2v2" />
-                      <path d="M12 20v2" />
-                      <path d="m4.93 4.93 1.41 1.41" />
-                      <path d="m17.66 17.66 1.41 1.41" />
-                      <path d="M2 12h2" />
-                      <path d="M20 12h2" />
-                      <path d="m6.34 17.66-1.41 1.41" />
-                      <path d="m19.07 4.93-1.41 1.41" />
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="lucide lucide-moon"
-                    >
-                      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-                    </svg>
-                  )}
+                <div class="relative group">
+                  <div
+                    class="absolute top-full left-1/2 transform
+                       -translate-x-1/2 mt-2 w-max px-2 py-1
+                       text-sm text-white bg-gray-700 rounded
+                       shadow-lg opacity-0 group-hover:opacity-100"
+                  >
+                    {isDarkMode() ? 'Light Mode' : 'Dark Mode'}
+                  </div>
+                  <div>
+                    {isDarkMode() ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-sun"
+                      >
+                        <title>sun</title>
+                        <circle cx="12" cy="12" r="4" />
+                        <path d="M12 2v2" />
+                        <path d="M12 20v2" />
+                        <path d="m4.93 4.93 1.41 1.41" />
+                        <path d="m17.66 17.66 1.41 1.41" />
+                        <path d="M2 12h2" />
+                        <path d="M20 12h2" />
+                        <path d="m6.34 17.66-1.41 1.41" />
+                        <path d="m19.07 4.93-1.41 1.41" />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-moon"
+                      >
+                        <title>moon</title>
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                      </svg>
+                    )}
+                  </div>
                 </div>
-
-                {isDarkMode() ? 'Light Mode' : 'Dark Mode'}
+                {/* {isDarkMode() ? 'Light Mode' : 'Dark Mode'} */}
               </button>
             </div>
           </div>
@@ -195,13 +208,19 @@ const App: Component = () => {
               href="https://github.com/andrizan/malanilist"
               class="text-slate-500 dark:text-slate-400 underline"
               target="_blank"
+              rel="noopener noreferrer"
             >
               GitHub
             </a>
           </span>
           <span class="text-slate-700 dark:text-slate-500">
             , API by{' '}
-            <a href="https://jikan.moe" class="text-slate-500 dark:text-slate-400 underline" target="_blank">
+            <a
+              href="https://jikan.moe"
+              class="text-slate-500 dark:text-slate-400 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Jikan
             </a>
           </span>
@@ -209,6 +228,7 @@ const App: Component = () => {
       </footer>
 
       <button
+        type="button"
         onClick={scrollToTop}
         class={`fixed bottom-4 right-4 p-3 rounded-full bg-gray-900 dark:bg-gray-50 text-gray-50 dark:text-gray-800 shadow-lg transition-opacity ${
           showToTopButton() ? '' : 'hidden'
@@ -227,6 +247,7 @@ const App: Component = () => {
           stroke-linejoin="round"
           class="lucide lucide-chevron-up"
         >
+          <title>Scroll to top</title>
           <path d="m18 15-6-6-6 6" />
         </svg>
       </button>
